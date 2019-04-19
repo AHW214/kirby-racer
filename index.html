@@ -5712,29 +5712,38 @@ var author$project$Main$directions = F3(
 				return dirs;
 		}
 	});
-var author$project$Main$position = F3(
-	function (dt, vel, pos) {
-		return _Utils_update(
+var author$project$Main$position = F2(
+	function (dt, kirby) {
+		var _n0 = kirby;
+		var vel = _n0.vel;
+		var pos = _n0.pos;
+		var newPos = _Utils_update(
 			pos,
 			{x: pos.x + (dt * vel.x), y: pos.y + (dt * vel.y)});
-	});
-var author$project$Main$velocity = F2(
-	function (dirs, vel) {
 		return _Utils_update(
-			vel,
-			{x: dirs.right - dirs.left, y: dirs.up - dirs.down});
+			kirby,
+			{pos: newPos});
 	});
+var author$project$Main$velocity = function (kirby) {
+	var _n0 = kirby;
+	var vel = _n0.vel;
+	var dirs = _n0.dirs;
+	var newVel = _Utils_update(
+		vel,
+		{x: dirs.right - dirs.left, y: dirs.up - dirs.down});
+	return _Utils_update(
+		kirby,
+		{vel: newVel});
+};
 var author$project$Main$update = F2(
 	function (msg, kirby) {
 		if (msg.$ === 'Frame') {
 			var dt = msg.a;
 			return _Utils_Tuple2(
-				_Utils_update(
-					kirby,
-					{
-						pos: A3(author$project$Main$position, dt, kirby.vel, kirby.pos),
-						vel: A2(author$project$Main$velocity, kirby.dirs, kirby.vel)
-					}),
+				A2(
+					author$project$Main$position,
+					dt,
+					author$project$Main$velocity(kirby)),
 				elm$core$Platform$Cmd$none);
 		} else {
 			var status = msg.a;

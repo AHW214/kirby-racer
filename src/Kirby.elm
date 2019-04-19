@@ -59,28 +59,37 @@ directions status key dirs =
         "d" -> { dirs | right = status }
         _   -> dirs
 
-velocity : Directions -> Vector2 -> Vector2
-velocity dirs vel =
-    { vel
-        | x = dirs.right - dirs.left
-        , y = dirs.up - dirs.down
-    }
+velocity : Model -> Model
+velocity kirby =
+    let
+        { vel, dirs } = kirby
+        newVel =
+            { vel
+                | x = dirs.right - dirs.left
+                , y = dirs.up - dirs.down
+            }
+    in
+        { kirby | vel = newVel }
 
-position : Float -> Vector2 -> Vector2 -> Vector2
-position dt vel pos =
-    { pos
-        | x = pos.x + dt * vel.x
-        , y = pos.y + dt * vel.y
-    }
+position : Float -> Model -> Model
+position dt kirby =
+    let
+        { vel , pos } = kirby
+        newPos =
+            { pos
+                | x = pos.x + dt * vel.x
+                , y = pos.y + dt * vel.y
+            }
+    in
+        { kirby | pos = newPos }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg kirby =
     case msg of
         Frame dt ->
-            ( { kirby
-                | vel = velocity kirby.dirs kirby.vel
-                , pos = position dt kirby.vel kirby.pos
-              }
+            ( kirby
+                |> velocity
+                |> position dt
             , Cmd.none
             )
         Change status key ->
