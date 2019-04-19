@@ -14,12 +14,25 @@ import Time exposing (..)
 import Json.Decode as Decode
 import Set exposing (Set)
 
+-- Params
+
+type alias Params =
+    { acc: Float    -- px/sec^2
+    , drag : Float
+    }
+
+params : Params
+params =
+    { acc = 10000
+    , drag = 50
+    }
 
 -- Model
 
 type alias Model =
     { pos : Vector2
     , vel : Vector2
+    , acc : Vector2
     , dirs : Directions
     }
 
@@ -37,6 +50,7 @@ initKirby : Model
 initKirby =
     { pos = Vector2 0 0
     , vel = Vector2 0 0
+    , acc = Vector2 0 0
     , dirs = Directions 0 0 0 0
     }
 
@@ -59,14 +73,58 @@ directions status key dirs =
         "d" -> { dirs | right = status }
         _   -> dirs
 
-velocity : Model -> Model
-velocity kirby =
+magnitude : Vector2 -> Float
+magnitude { x , y } = sqrt (x^2 + y^2)
+
+scalar : Float -> Vector2 -> Vector2
+scalar k vector =
+    { vector
+        | x = k * vector.x
+        , y = k * vector.y
+    }
+
+normalize : Vector2 -> Vector2
+normalize vector =
+    let m = magnitude vector in
+    if m > 0 then scalar (1 / m) vector else vector
+
+input : Directions -> Vector2
+input { up, down, left, right } =
+    { x = right - left
+    , y = up - down
+    }
+
+drag : Float -> Model -> Model
+drag d kirby =
     let
-        { vel, dirs } = kirby
+        { vel } = kirby
+        speed = magnitude vel
+        newSpeed = max 0 (speed - d)
+        scale = if speed > 0 then newSpeed / speed else 0
+    in
+        { kirby | vel = scalar scale vel}
+
+acceleration : Model -> Model
+acceleration kirby =
+    let
+        { acc, dirs } = kirby
+        norm = normalize (input dirs)
+        newAcc =
+            { acc
+                | x = params.acc * norm.x
+                , y = params.acc * norm.y
+            }
+    in
+        { kirby | acc = newAcc }
+
+velocity : Float -> Model -> Model
+velocity dt kirby =
+    let
+        { acc, vel } = kirby
         newVel =
             { vel
-                | x = dirs.right - dirs.left
-                , y = dirs.up - dirs.down
+                | x = vel.x + dt * acc.x
+                , y = vel.y + dt * acc.y
             }
     in
         { kirby | vel = newVel }
@@ -86,9 +144,12 @@ position dt kirby =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg kirby =
     case msg of
-        Frame dt ->
+        Frame ms ->
+            let dt = ms / 1000 in
             ( kirby
-                |> velocity
+                |> acceleration
+                |> velocity dt
+                |> drag params.drag
                 |> position dt
             , Cmd.none
             )
@@ -108,7 +169,7 @@ display { pos } =
                 |> filled (uniform Color.white)
                 |> shift (pos.x, pos.y)
         rect =
-            rectangle 1000 1000
+            rectangle 1920 1080
                 |> filled (uniform Color.black)
     in
         impose circ rect
@@ -133,6 +194,7 @@ subscriptions _ =
         , Browser.Events.onKeyDown <| keyDecoder <| Change 1
         , Browser.Events.onAnimationFrameDelta Frame
         ]
+
 
 -- Program
 

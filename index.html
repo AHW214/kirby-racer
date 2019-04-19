@@ -4329,6 +4329,7 @@ var author$project$Main$Vector2 = F2(
 		return {x: x, y: y};
 	});
 var author$project$Main$initKirby = {
+	acc: A2(author$project$Main$Vector2, 0, 0),
 	dirs: A4(author$project$Main$Directions, 0, 0, 0, 0),
 	pos: A2(author$project$Main$Vector2, 0, 0),
 	vel: A2(author$project$Main$Vector2, 0, 0)
@@ -5689,6 +5690,45 @@ var author$project$Main$subscriptions = function (_n0) {
 				elm$browser$Browser$Events$onAnimationFrameDelta(author$project$Main$Frame)
 			]));
 };
+var author$project$Main$input = function (_n0) {
+	var up = _n0.up;
+	var down = _n0.down;
+	var left = _n0.left;
+	var right = _n0.right;
+	return {x: right - left, y: up - down};
+};
+var elm$core$Basics$pow = _Basics_pow;
+var elm$core$Basics$sqrt = _Basics_sqrt;
+var author$project$Main$magnitude = function (_n0) {
+	var x = _n0.x;
+	var y = _n0.y;
+	return elm$core$Basics$sqrt(
+		A2(elm$core$Basics$pow, x, 2) + A2(elm$core$Basics$pow, y, 2));
+};
+var author$project$Main$scalar = F2(
+	function (k, vector) {
+		return _Utils_update(
+			vector,
+			{x: k * vector.x, y: k * vector.y});
+	});
+var author$project$Main$normalize = function (vector) {
+	var m = author$project$Main$magnitude(vector);
+	return (m > 0) ? A2(author$project$Main$scalar, 1 / m, vector) : vector;
+};
+var author$project$Main$params = {acc: 10000, drag: 50};
+var author$project$Main$acceleration = function (kirby) {
+	var _n0 = kirby;
+	var acc = _n0.acc;
+	var dirs = _n0.dirs;
+	var norm = author$project$Main$normalize(
+		author$project$Main$input(dirs));
+	var newAcc = _Utils_update(
+		acc,
+		{x: author$project$Main$params.acc * norm.x, y: author$project$Main$params.acc * norm.y});
+	return _Utils_update(
+		kirby,
+		{acc: newAcc});
+};
 var author$project$Main$directions = F3(
 	function (status, key, dirs) {
 		switch (key) {
@@ -5712,6 +5752,19 @@ var author$project$Main$directions = F3(
 				return dirs;
 		}
 	});
+var author$project$Main$drag = F2(
+	function (d, kirby) {
+		var _n0 = kirby;
+		var vel = _n0.vel;
+		var speed = author$project$Main$magnitude(vel);
+		var newSpeed = A2(elm$core$Basics$max, 0, speed - d);
+		var scale = (speed > 0) ? (newSpeed / speed) : 0;
+		return _Utils_update(
+			kirby,
+			{
+				vel: A2(author$project$Main$scalar, scale, vel)
+			});
+	});
 var author$project$Main$position = F2(
 	function (dt, kirby) {
 		var _n0 = kirby;
@@ -5724,26 +5777,34 @@ var author$project$Main$position = F2(
 			kirby,
 			{pos: newPos});
 	});
-var author$project$Main$velocity = function (kirby) {
-	var _n0 = kirby;
-	var vel = _n0.vel;
-	var dirs = _n0.dirs;
-	var newVel = _Utils_update(
-		vel,
-		{x: dirs.right - dirs.left, y: dirs.up - dirs.down});
-	return _Utils_update(
-		kirby,
-		{vel: newVel});
-};
+var author$project$Main$velocity = F2(
+	function (dt, kirby) {
+		var _n0 = kirby;
+		var acc = _n0.acc;
+		var vel = _n0.vel;
+		var newVel = _Utils_update(
+			vel,
+			{x: vel.x + (dt * acc.x), y: vel.y + (dt * acc.y)});
+		return _Utils_update(
+			kirby,
+			{vel: newVel});
+	});
 var author$project$Main$update = F2(
 	function (msg, kirby) {
 		if (msg.$ === 'Frame') {
-			var dt = msg.a;
+			var ms = msg.a;
+			var dt = ms / 1000;
 			return _Utils_Tuple2(
 				A2(
 					author$project$Main$position,
 					dt,
-					author$project$Main$velocity(kirby)),
+					A2(
+						author$project$Main$drag,
+						author$project$Main$params.drag,
+						A2(
+							author$project$Main$velocity,
+							dt,
+							author$project$Main$acceleration(kirby)))),
 				elm$core$Platform$Cmd$none);
 		} else {
 			var status = msg.a;
@@ -5853,7 +5914,7 @@ var author$project$Main$display = function (_n0) {
 	var rect = A2(
 		timjs$elm_collage$Collage$filled,
 		timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$black),
-		A2(timjs$elm_collage$Collage$rectangle, 1000, 1000));
+		A2(timjs$elm_collage$Collage$rectangle, 1920, 1080));
 	var circ = A2(
 		timjs$elm_collage$Collage$shift,
 		_Utils_Tuple2(pos.x, pos.y),
