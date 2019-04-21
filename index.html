@@ -4320,10 +4320,90 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$object = F2(
-	function (pos, vel) {
-		return {pos: pos, vel: vel};
+
+
+
+function _Time_now(millisToPosix)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(millisToPosix(Date.now())));
 	});
+}
+
+var _Time_setInterval = F2(function(interval, task)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
+		return function() { clearInterval(id); };
+	});
+});
+
+function _Time_here()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(
+			A2(elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
+		));
+	});
+}
+
+
+function _Time_getZoneName()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		try
+		{
+			var name = elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
+		}
+		catch (e)
+		{
+			var name = elm$time$Time$Offset(new Date().getTimezoneOffset());
+		}
+		callback(_Scheduler_succeed(name));
+	});
+}
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
+var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$LT = {$: 'LT'};
 var elm$core$Elm$JsArray$foldr = _JsArray_foldr;
@@ -4405,14 +4485,16 @@ var elm$core$Set$toList = function (_n0) {
 	return elm$core$Dict$keys(dict);
 };
 var author$project$Main$initModel = {
+	health: 10,
 	input: {down: 0, left: 0, right: 0, up: 0},
-	kirby: A2(
-		author$project$Main$object,
-		_Utils_Tuple2(0, 0),
-		_Utils_Tuple2(0, 0)),
+	kirby: {
+		collision: false,
+		pos: _Utils_Tuple2(0, 0),
+		rad: 24,
+		vel: _Utils_Tuple2(0, 0)
+	},
 	obstacles: _List_Nil
 };
-var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -4819,6 +4901,7 @@ var author$project$Main$Change = F2(
 var author$project$Main$Frame = function (a) {
 	return {$: 'Frame', a: a};
 };
+var author$project$Main$SpawnObstacle = {$: 'SpawnObstacle'};
 var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$string = _Json_decodeString;
@@ -4827,6 +4910,14 @@ var author$project$Main$keyDecoder = function (action) {
 		elm$json$Json$Decode$map,
 		action,
 		A2(elm$json$Json$Decode$field, 'key', elm$json$Json$Decode$string));
+};
+var author$project$Main$params = {
+	acc: 10000,
+	drag: 5000,
+	maxObstacleRadius: 30,
+	maxSpeed: 2000,
+	obstacleSpawnTime: 500,
+	window: {height: 1080, width: 1920}
 };
 var elm$browser$Browser$AnimationManager$Delta = function (a) {
 	return {$: 'Delta', a: a};
@@ -5674,9 +5765,220 @@ var elm$browser$Browser$Events$on = F3(
 	});
 var elm$browser$Browser$Events$onKeyDown = A2(elm$browser$Browser$Events$on, elm$browser$Browser$Events$Document, 'keydown');
 var elm$browser$Browser$Events$onKeyUp = A2(elm$browser$Browser$Events$on, elm$browser$Browser$Events$Document, 'keyup');
+var elm$core$Basics$always = F2(
+	function (a, _n0) {
+		return a;
+	});
 var elm$core$Platform$Sub$batch = _Platform_batch;
-var author$project$Main$subscriptions = function (_n0) {
-	return elm$core$Platform$Sub$batch(
+var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
+var elm$time$Time$Every = F2(
+	function (a, b) {
+		return {$: 'Every', a: a, b: b};
+	});
+var elm$time$Time$State = F2(
+	function (taggers, processes) {
+		return {processes: processes, taggers: taggers};
+	});
+var elm$time$Time$init = elm$core$Task$succeed(
+	A2(elm$time$Time$State, elm$core$Dict$empty, elm$core$Dict$empty));
+var elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _n1 = A2(elm$core$Basics$compare, targetKey, key);
+				switch (_n1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var elm$time$Time$addMySub = F2(
+	function (_n0, state) {
+		var interval = _n0.a;
+		var tagger = _n0.b;
+		var _n1 = A2(elm$core$Dict$get, interval, state);
+		if (_n1.$ === 'Nothing') {
+			return A3(
+				elm$core$Dict$insert,
+				interval,
+				_List_fromArray(
+					[tagger]),
+				state);
+		} else {
+			var taggers = _n1.a;
+			return A3(
+				elm$core$Dict$insert,
+				interval,
+				A2(elm$core$List$cons, tagger, taggers),
+				state);
+		}
+	});
+var elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
+};
+var elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var elm$time$Time$customZone = elm$time$Time$Zone;
+var elm$time$Time$setInterval = _Time_setInterval;
+var elm$time$Time$spawnHelp = F3(
+	function (router, intervals, processes) {
+		if (!intervals.b) {
+			return elm$core$Task$succeed(processes);
+		} else {
+			var interval = intervals.a;
+			var rest = intervals.b;
+			var spawnTimer = elm$core$Process$spawn(
+				A2(
+					elm$time$Time$setInterval,
+					interval,
+					A2(elm$core$Platform$sendToSelf, router, interval)));
+			var spawnRest = function (id) {
+				return A3(
+					elm$time$Time$spawnHelp,
+					router,
+					rest,
+					A3(elm$core$Dict$insert, interval, id, processes));
+			};
+			return A2(elm$core$Task$andThen, spawnRest, spawnTimer);
+		}
+	});
+var elm$time$Time$onEffects = F3(
+	function (router, subs, _n0) {
+		var processes = _n0.processes;
+		var rightStep = F3(
+			function (_n6, id, _n7) {
+				var spawns = _n7.a;
+				var existing = _n7.b;
+				var kills = _n7.c;
+				return _Utils_Tuple3(
+					spawns,
+					existing,
+					A2(
+						elm$core$Task$andThen,
+						function (_n5) {
+							return kills;
+						},
+						elm$core$Process$kill(id)));
+			});
+		var newTaggers = A3(elm$core$List$foldl, elm$time$Time$addMySub, elm$core$Dict$empty, subs);
+		var leftStep = F3(
+			function (interval, taggers, _n4) {
+				var spawns = _n4.a;
+				var existing = _n4.b;
+				var kills = _n4.c;
+				return _Utils_Tuple3(
+					A2(elm$core$List$cons, interval, spawns),
+					existing,
+					kills);
+			});
+		var bothStep = F4(
+			function (interval, taggers, id, _n3) {
+				var spawns = _n3.a;
+				var existing = _n3.b;
+				var kills = _n3.c;
+				return _Utils_Tuple3(
+					spawns,
+					A3(elm$core$Dict$insert, interval, id, existing),
+					kills);
+			});
+		var _n1 = A6(
+			elm$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			newTaggers,
+			processes,
+			_Utils_Tuple3(
+				_List_Nil,
+				elm$core$Dict$empty,
+				elm$core$Task$succeed(_Utils_Tuple0)));
+		var spawnList = _n1.a;
+		var existingDict = _n1.b;
+		var killTask = _n1.c;
+		return A2(
+			elm$core$Task$andThen,
+			function (newProcesses) {
+				return elm$core$Task$succeed(
+					A2(elm$time$Time$State, newTaggers, newProcesses));
+			},
+			A2(
+				elm$core$Task$andThen,
+				function (_n2) {
+					return A3(elm$time$Time$spawnHelp, router, spawnList, existingDict);
+				},
+				killTask));
+	});
+var elm$time$Time$now = _Time_now(elm$time$Time$millisToPosix);
+var elm$time$Time$onSelfMsg = F3(
+	function (router, interval, state) {
+		var _n0 = A2(elm$core$Dict$get, interval, state.taggers);
+		if (_n0.$ === 'Nothing') {
+			return elm$core$Task$succeed(state);
+		} else {
+			var taggers = _n0.a;
+			var tellTaggers = function (time) {
+				return elm$core$Task$sequence(
+					A2(
+						elm$core$List$map,
+						function (tagger) {
+							return A2(
+								elm$core$Platform$sendToApp,
+								router,
+								tagger(time));
+						},
+						taggers));
+			};
+			return A2(
+				elm$core$Task$andThen,
+				function (_n1) {
+					return elm$core$Task$succeed(state);
+				},
+				A2(elm$core$Task$andThen, tellTaggers, elm$time$Time$now));
+		}
+	});
+var elm$time$Time$subMap = F2(
+	function (f, _n0) {
+		var interval = _n0.a;
+		var tagger = _n0.b;
+		return A2(
+			elm$time$Time$Every,
+			interval,
+			A2(elm$core$Basics$composeL, f, tagger));
+	});
+_Platform_effectManagers['Time'] = _Platform_createManager(elm$time$Time$init, elm$time$Time$onEffects, elm$time$Time$onSelfMsg, 0, elm$time$Time$subMap);
+var elm$time$Time$subscription = _Platform_leaf('Time');
+var elm$time$Time$every = F2(
+	function (interval, tagger) {
+		return elm$time$Time$subscription(
+			A2(elm$time$Time$Every, interval, tagger));
+	});
+var author$project$Main$subscriptions = function (model) {
+	return (model.health > 0) ? elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
 				elm$browser$Browser$Events$onKeyUp(
@@ -5685,8 +5987,15 @@ var author$project$Main$subscriptions = function (_n0) {
 				elm$browser$Browser$Events$onKeyDown(
 				author$project$Main$keyDecoder(
 					author$project$Main$Change(1))),
-				elm$browser$Browser$Events$onAnimationFrameDelta(author$project$Main$Frame)
-			]));
+				elm$browser$Browser$Events$onAnimationFrameDelta(author$project$Main$Frame),
+				A2(
+				elm$time$Time$every,
+				author$project$Main$params.obstacleSpawnTime,
+				elm$core$Basics$always(author$project$Main$SpawnObstacle))
+			])) : elm$core$Platform$Sub$none;
+};
+var author$project$Main$AddObstacle = function (a) {
+	return {$: 'AddObstacle', a: a};
 };
 var elm$core$Basics$pow = _Basics_pow;
 var elm$core$Basics$sqrt = _Basics_sqrt;
@@ -5696,6 +6005,60 @@ var author$project$Vector$mag = function (_n0) {
 	return elm$core$Basics$sqrt(
 		A2(elm$core$Basics$pow, x, 2) + A2(elm$core$Basics$pow, y, 2));
 };
+var author$project$Vector$biOp = F3(
+	function (op, _n0, _n1) {
+		var x1 = _n0.a;
+		var y1 = _n0.b;
+		var x2 = _n1.a;
+		var y2 = _n1.b;
+		return _Utils_Tuple2(
+			A2(op, x1, x2),
+			A2(op, y1, y2));
+	});
+var author$project$Vector$sub = author$project$Vector$biOp(elm$core$Basics$sub);
+var author$project$Vector$dist = F2(
+	function (v1, v2) {
+		return author$project$Vector$mag(
+			A2(author$project$Vector$sub, v1, v2));
+	});
+var author$project$Main$collision = F2(
+	function (obj1, obj2) {
+		return _Utils_cmp(
+			obj1.rad + obj2.rad,
+			A2(author$project$Vector$dist, obj1.pos, obj2.pos)) > 0;
+	});
+var elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var author$project$Main$checkCollision = F2(
+	function (obs, kirby) {
+		return _Utils_update(
+			kirby,
+			{
+				collision: A2(
+					elm$core$List$any,
+					author$project$Main$collision(kirby),
+					obs)
+			});
+	});
 var author$project$Vector$scale = F2(
 	function (k, _n0) {
 		var x = _n0.a;
@@ -5719,22 +6082,148 @@ var author$project$Main$drag = F4(
 				vel: A2(author$project$Vector$scale, k, vel)
 			});
 	});
-var author$project$Main$params = {
-	acc: 10000,
-	drag: 5000,
-	maxSpeed: 2000,
-	window: {height: 1920, width: 1080}
-};
-var author$project$Vector$biOp = F3(
-	function (op, _n0, _n1) {
-		var x1 = _n0.a;
-		var y1 = _n0.b;
-		var x2 = _n1.a;
-		var y2 = _n1.b;
-		return _Utils_Tuple2(
-			A2(op, x1, x2),
-			A2(op, y1, y2));
+var author$project$Main$object = F3(
+	function (pos, vel, rad) {
+		return {pos: pos, rad: rad, vel: vel};
 	});
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var elm$core$Bitwise$and = _Bitwise_and;
+var elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var elm$random$Random$next = function (_n0) {
+	var state0 = _n0.a;
+	var incr = _n0.b;
+	return A2(elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var elm$core$Bitwise$xor = _Bitwise_xor;
+var elm$random$Random$peel = function (_n0) {
+	var state = _n0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var elm$random$Random$float = F2(
+	function (a, b) {
+		return elm$random$Random$Generator(
+			function (seed0) {
+				var seed1 = elm$random$Random$next(seed0);
+				var range = elm$core$Basics$abs(b - a);
+				var n1 = elm$random$Random$peel(seed1);
+				var n0 = elm$random$Random$peel(seed0);
+				var lo = (134217727 & n1) * 1.0;
+				var hi = (67108863 & n0) * 1.0;
+				var val = ((hi * 1.34217728e8) + lo) / 9.007199254740992e15;
+				var scaled = (val * range) + a;
+				return _Utils_Tuple2(
+					scaled,
+					elm$random$Random$next(seed1));
+			});
+	});
+var elm$random$Random$map2 = F3(
+	function (func, _n0, _n1) {
+		var genA = _n0.a;
+		var genB = _n1.a;
+		return elm$random$Random$Generator(
+			function (seed0) {
+				var _n2 = genA(seed0);
+				var a = _n2.a;
+				var seed1 = _n2.b;
+				var _n3 = genB(seed1);
+				var b = _n3.a;
+				var seed2 = _n3.b;
+				return _Utils_Tuple2(
+					A2(func, a, b),
+					seed2);
+			});
+	});
+var elm$random$Random$pair = F2(
+	function (genA, genB) {
+		return A3(
+			elm$random$Random$map2,
+			F2(
+				function (a, b) {
+					return _Utils_Tuple2(a, b);
+				}),
+			genA,
+			genB);
+	});
+var author$project$Vector$random = F2(
+	function (_n0, _n1) {
+		var minX = _n0.a;
+		var minY = _n0.b;
+		var maxX = _n1.a;
+		var maxY = _n1.b;
+		return A2(
+			elm$random$Random$pair,
+			A2(elm$random$Random$float, minX, maxX),
+			A2(elm$random$Random$float, minY, maxY));
+	});
+var elm$random$Random$map3 = F4(
+	function (func, _n0, _n1, _n2) {
+		var genA = _n0.a;
+		var genB = _n1.a;
+		var genC = _n2.a;
+		return elm$random$Random$Generator(
+			function (seed0) {
+				var _n3 = genA(seed0);
+				var a = _n3.a;
+				var seed1 = _n3.b;
+				var _n4 = genB(seed1);
+				var b = _n4.a;
+				var seed2 = _n4.b;
+				var _n5 = genC(seed2);
+				var c = _n5.a;
+				var seed3 = _n5.b;
+				return _Utils_Tuple2(
+					A3(func, a, b, c),
+					seed3);
+			});
+	});
+var author$project$Main$obstacleGenerator = function () {
+	var padding = author$project$Main$params.maxObstacleRadius;
+	var _n0 = author$project$Main$params.window;
+	var width = _n0.width;
+	var height = _n0.height;
+	var halfHeight = height / 2;
+	var spawnX = (width / 2) + padding;
+	return A4(
+		elm$random$Random$map3,
+		author$project$Main$object,
+		A2(
+			author$project$Vector$random,
+			_Utils_Tuple2(spawnX, (-1) * halfHeight),
+			_Utils_Tuple2(spawnX, halfHeight)),
+		A2(
+			author$project$Vector$random,
+			_Utils_Tuple2(-1000, -50),
+			_Utils_Tuple2(-200, 50)),
+		A2(elm$random$Random$float, 5, author$project$Main$params.maxObstacleRadius));
+}();
+var elm$core$Basics$ge = _Utils_ge;
+var author$project$Main$onScreen = function (_n0) {
+	var pos = _n0.pos;
+	var rad = _n0.rad;
+	var padding = author$project$Main$params.maxObstacleRadius;
+	var _n1 = pos;
+	var x = _n1.a;
+	var y = _n1.b;
+	var _n2 = author$project$Main$params.window;
+	var width = _n2.width;
+	var height = _n2.height;
+	var threshY = (height / 2) + padding;
+	var threshX = (width / 2) + padding;
+	return (_Utils_cmp(x, threshX) < 1) && ((_Utils_cmp(x, -threshX) > -1) && ((_Utils_cmp(y, threshY) < 1) && (_Utils_cmp(y, -threshY) > -1)));
+};
 var author$project$Vector$add = author$project$Vector$biOp(elm$core$Basics$add);
 var author$project$Main$position = F2(
 	function (dt, obj) {
@@ -5799,47 +6288,169 @@ var author$project$Main$velocity = F3(
 					A2(author$project$Vector$scale, dt, acc))
 			});
 	});
-var author$project$Main$update = F2(
-	function (msg, model) {
-		if (msg.$ === 'Frame') {
-			var ms = msg.a;
-			var dt = ms / 1000;
-			var acc = A2(
-				author$project$Vector$scale,
-				author$project$Main$params.acc,
-				author$project$Main$sumInput(model.input));
-			var kirby = A2(
-				author$project$Main$position,
-				dt,
-				A4(
-					author$project$Main$drag,
-					dt,
-					author$project$Main$params.drag,
-					author$project$Main$params.maxSpeed,
-					A3(author$project$Main$velocity, dt, acc, model.kirby)));
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{kirby: kirby}),
-				elm$core$Platform$Cmd$none);
+var elm$core$Basics$not = _Basics_not;
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var elm$random$Random$Generate = function (a) {
+	return {$: 'Generate', a: a};
+};
+var elm$random$Random$initialSeed = function (x) {
+	var _n0 = elm$random$Random$next(
+		A2(elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _n0.a;
+	var incr = _n0.b;
+	var state2 = (state1 + x) >>> 0;
+	return elm$random$Random$next(
+		A2(elm$random$Random$Seed, state2, incr));
+};
+var elm$time$Time$posixToMillis = function (_n0) {
+	var millis = _n0.a;
+	return millis;
+};
+var elm$random$Random$init = A2(
+	elm$core$Task$andThen,
+	function (time) {
+		return elm$core$Task$succeed(
+			elm$random$Random$initialSeed(
+				elm$time$Time$posixToMillis(time)));
+	},
+	elm$time$Time$now);
+var elm$random$Random$step = F2(
+	function (_n0, seed) {
+		var generator = _n0.a;
+		return generator(seed);
+	});
+var elm$random$Random$onEffects = F3(
+	function (router, commands, seed) {
+		if (!commands.b) {
+			return elm$core$Task$succeed(seed);
 		} else {
-			var status = msg.a;
-			var key = msg.b;
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{
-						input: A3(author$project$Main$setInput, status, key, model.input)
-					}),
-				elm$core$Platform$Cmd$none);
+			var generator = commands.a.a;
+			var rest = commands.b;
+			var _n1 = A2(elm$random$Random$step, generator, seed);
+			var value = _n1.a;
+			var newSeed = _n1.b;
+			return A2(
+				elm$core$Task$andThen,
+				function (_n2) {
+					return A3(elm$random$Random$onEffects, router, rest, newSeed);
+				},
+				A2(elm$core$Platform$sendToApp, router, value));
 		}
 	});
+var elm$random$Random$onSelfMsg = F3(
+	function (_n0, _n1, seed) {
+		return elm$core$Task$succeed(seed);
+	});
+var elm$random$Random$map = F2(
+	function (func, _n0) {
+		var genA = _n0.a;
+		return elm$random$Random$Generator(
+			function (seed0) {
+				var _n1 = genA(seed0);
+				var a = _n1.a;
+				var seed1 = _n1.b;
+				return _Utils_Tuple2(
+					func(a),
+					seed1);
+			});
+	});
+var elm$random$Random$cmdMap = F2(
+	function (func, _n0) {
+		var generator = _n0.a;
+		return elm$random$Random$Generate(
+			A2(elm$random$Random$map, func, generator));
+	});
+_Platform_effectManagers['Random'] = _Platform_createManager(elm$random$Random$init, elm$random$Random$onEffects, elm$random$Random$onSelfMsg, elm$random$Random$cmdMap);
+var elm$random$Random$command = _Platform_leaf('Random');
+var elm$random$Random$generate = F2(
+	function (tagger, generator) {
+		return elm$random$Random$command(
+			elm$random$Random$Generate(
+				A2(elm$random$Random$map, tagger, generator)));
+	});
+var author$project$Main$update = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'Frame':
+				var ms = msg.a;
+				var dt = ms / 1000;
+				var obs = A2(
+					elm$core$List$map,
+					author$project$Main$position(dt),
+					A2(elm$core$List$filter, author$project$Main$onScreen, model.obstacles));
+				var acc = A2(
+					author$project$Vector$scale,
+					author$project$Main$params.acc,
+					author$project$Main$sumInput(model.input));
+				var kirby = A2(
+					author$project$Main$checkCollision,
+					model.obstacles,
+					A2(
+						author$project$Main$position,
+						dt,
+						A4(
+							author$project$Main$drag,
+							dt,
+							author$project$Main$params.drag,
+							author$project$Main$params.maxSpeed,
+							A3(author$project$Main$velocity, dt, acc, model.kirby))));
+				var health = ((!model.kirby.collision) && kirby.collision) ? (model.health - 1) : model.health;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{health: health, kirby: kirby, obstacles: obs}),
+					elm$core$Platform$Cmd$none);
+			case 'SpawnObstacle':
+				return _Utils_Tuple2(
+					model,
+					A2(elm$random$Random$generate, author$project$Main$AddObstacle, author$project$Main$obstacleGenerator));
+			case 'AddObstacle':
+				var obs = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							obstacles: A2(elm$core$List$cons, obs, model.obstacles)
+						}),
+					elm$core$Platform$Cmd$none);
+			default:
+				var status = msg.a;
+				var key = msg.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							input: A3(author$project$Main$setInput, status, key, model.input)
+						}),
+					elm$core$Platform$Cmd$none);
+		}
+	});
+var author$project$Main$kirbyImage = function (_n0) {
+	var up = _n0.up;
+	var down = _n0.down;
+	var left = _n0.left;
+	var right = _n0.right;
+	var vert = up - down;
+	var horiz = right - left;
+	var dir = (vert === 1) ? 'up' : (_Utils_eq(vert, -1) ? 'down' : ((horiz === 1) ? 'right' : 'still'));
+	return 'assets/images/kirby/' + (dir + '.gif');
+};
 var avh4$elm_color$Color$RgbaSpace = F4(
 	function (a, b, c, d) {
 		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
 	});
 var avh4$elm_color$Color$black = A4(avh4$elm_color$Color$RgbaSpace, 0 / 255, 0 / 255, 0 / 255, 1.0);
-var avh4$elm_color$Color$white = A4(avh4$elm_color$Color$RgbaSpace, 255 / 255, 255 / 255, 255 / 255, 1.0);
+var avh4$elm_color$Color$red = A4(avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
 var timjs$elm_collage$Collage$Core$Circle = function (a) {
 	return {$: 'Circle', a: a};
 };
@@ -5894,6 +6505,20 @@ var timjs$elm_collage$Collage$filled = function (fill) {
 	return timjs$elm_collage$Collage$styled(
 		_Utils_Tuple2(fill, timjs$elm_collage$Collage$invisible));
 };
+var timjs$elm_collage$Collage$Core$Group = function (a) {
+	return {$: 'Group', a: a};
+};
+var timjs$elm_collage$Collage$group = A2(elm$core$Basics$composeL, timjs$elm_collage$Collage$Core$collage, timjs$elm_collage$Collage$Core$Group);
+var timjs$elm_collage$Collage$Core$Image = F2(
+	function (a, b) {
+		return {$: 'Image', a: a, b: b};
+	});
+var timjs$elm_collage$Collage$image = function (dims) {
+	return A2(
+		elm$core$Basics$composeL,
+		timjs$elm_collage$Collage$Core$collage,
+		timjs$elm_collage$Collage$Core$Image(dims));
+};
 var timjs$elm_collage$Collage$Core$Rectangle = F3(
 	function (a, b, c) {
 		return {$: 'Rectangle', a: a, b: b, c: c};
@@ -5925,28 +6550,44 @@ var timjs$elm_collage$Collage$Layout$impose = F2(
 		return timjs$elm_collage$Collage$Core$collage(
 			A2(timjs$elm_collage$Collage$Core$Subcollage, front, back));
 	});
-var author$project$Main$display = function (_n0) {
-	var kirby = _n0.kirby;
+var author$project$Main$display = function (model) {
 	var rect = A2(
 		timjs$elm_collage$Collage$filled,
 		timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$black),
 		A2(timjs$elm_collage$Collage$rectangle, 1920, 1080));
-	var circ = A2(
+	var obs = A2(
+		elm$core$List$map,
+		function (_n0) {
+			var pos = _n0.pos;
+			var rad = _n0.rad;
+			return A2(
+				timjs$elm_collage$Collage$shift,
+				pos,
+				A2(
+					timjs$elm_collage$Collage$filled,
+					timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$red),
+					timjs$elm_collage$Collage$circle(rad)));
+		},
+		model.obstacles);
+	var img = A2(
 		timjs$elm_collage$Collage$shift,
-		kirby.pos,
+		model.kirby.pos,
 		A2(
-			timjs$elm_collage$Collage$filled,
-			timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$white),
-			timjs$elm_collage$Collage$circle(5)));
-	return A2(timjs$elm_collage$Collage$Layout$impose, circ, rect);
+			timjs$elm_collage$Collage$image,
+			_Utils_Tuple2(49, 42),
+			author$project$Main$kirbyImage(model.input)));
+	return A2(
+		timjs$elm_collage$Collage$Layout$impose,
+		img,
+		A2(
+			timjs$elm_collage$Collage$Layout$impose,
+			timjs$elm_collage$Collage$group(obs),
+			rect));
 };
 var elm$core$Debug$toString = _Debug_toString;
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var timjs$elm_collage$Collage$opposite = function (_n0) {
 	var x = _n0.a;
 	var y = _n0.b;
@@ -6264,9 +6905,6 @@ var elm$svg$Svg$Attributes$xlinkHref = function (value) {
 		'http://www.w3.org/1999/xlink',
 		'xlink:href',
 		_VirtualDom_noJavaScriptUri(value));
-};
-var timjs$elm_collage$Collage$Core$Group = function (a) {
-	return {$: 'Group', a: a};
 };
 var elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
 var elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
@@ -6859,21 +7497,31 @@ var timjs$elm_collage$Collage$Render$svg = function (collage) {
 		A2(timjs$elm_collage$Collage$Layout$align, timjs$elm_collage$Collage$Layout$topLeft, collage));
 };
 var author$project$Main$view = function (model) {
+	var over = _List_fromArray(
+		[
+			A2(
+			elm$html$Html$h1,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Game Over')
+				]))
+		]);
+	var active = _List_fromArray(
+		[
+			timjs$elm_collage$Collage$Render$svg(
+			author$project$Main$display(model)),
+			A2(
+			elm$html$Html$h1,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text(
+					'Health: ' + elm$core$Debug$toString(model.health))
+				]))
+		]);
 	return {
-		body: _List_fromArray(
-			[
-				timjs$elm_collage$Collage$Render$svg(
-				author$project$Main$display(model)),
-				A2(
-				elm$html$Html$h1,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text(
-						elm$core$Debug$toString(
-							author$project$Vector$mag(model.kirby.vel)))
-					]))
-			]),
+		body: (model.health > 0) ? active : over,
 		title: 'Kirby Racer'
 	};
 };
