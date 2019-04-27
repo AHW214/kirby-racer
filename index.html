@@ -242,6 +242,87 @@ var _JsArray_appendN = F3(function(n, dest, source)
 
 
 
+var _List_Nil_UNUSED = { $: 0 };
+var _List_Nil = { $: '[]' };
+
+function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
+function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
+
+
+var _List_cons = F2(_List_Cons);
+
+function _List_fromArray(arr)
+{
+	var out = _List_Nil;
+	for (var i = arr.length; i--; )
+	{
+		out = _List_Cons(arr[i], out);
+	}
+	return out;
+}
+
+function _List_toArray(xs)
+{
+	for (var out = []; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		out.push(xs.a);
+	}
+	return out;
+}
+
+var _List_map2 = F3(function(f, xs, ys)
+{
+	for (var arr = []; xs.b && ys.b; xs = xs.b, ys = ys.b) // WHILE_CONSES
+	{
+		arr.push(A2(f, xs.a, ys.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_map3 = F4(function(f, xs, ys, zs)
+{
+	for (var arr = []; xs.b && ys.b && zs.b; xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
+	{
+		arr.push(A3(f, xs.a, ys.a, zs.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_map4 = F5(function(f, ws, xs, ys, zs)
+{
+	for (var arr = []; ws.b && xs.b && ys.b && zs.b; ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
+	{
+		arr.push(A4(f, ws.a, xs.a, ys.a, zs.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_map5 = F6(function(f, vs, ws, xs, ys, zs)
+{
+	for (var arr = []; vs.b && ws.b && xs.b && ys.b && zs.b; vs = vs.b, ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
+	{
+		arr.push(A5(f, vs.a, ws.a, xs.a, ys.a, zs.a));
+	}
+	return _List_fromArray(arr);
+});
+
+var _List_sortBy = F2(function(f, xs)
+{
+	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
+		return _Utils_cmp(f(a), f(b));
+	}));
+});
+
+var _List_sortWith = F2(function(f, xs)
+{
+	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
+		var ord = A2(f, a, b);
+		return ord === elm$core$Basics$EQ ? 0 : ord === elm$core$Basics$LT ? -1 : 1;
+	}));
+});
+
+
+
 // LOG
 
 var _Debug_log_UNUSED = F2(function(tag, value)
@@ -719,87 +800,6 @@ function _Utils_ap(xs, ys)
 	}
 	return root;
 }
-
-
-
-var _List_Nil_UNUSED = { $: 0 };
-var _List_Nil = { $: '[]' };
-
-function _List_Cons_UNUSED(hd, tl) { return { $: 1, a: hd, b: tl }; }
-function _List_Cons(hd, tl) { return { $: '::', a: hd, b: tl }; }
-
-
-var _List_cons = F2(_List_Cons);
-
-function _List_fromArray(arr)
-{
-	var out = _List_Nil;
-	for (var i = arr.length; i--; )
-	{
-		out = _List_Cons(arr[i], out);
-	}
-	return out;
-}
-
-function _List_toArray(xs)
-{
-	for (var out = []; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		out.push(xs.a);
-	}
-	return out;
-}
-
-var _List_map2 = F3(function(f, xs, ys)
-{
-	for (var arr = []; xs.b && ys.b; xs = xs.b, ys = ys.b) // WHILE_CONSES
-	{
-		arr.push(A2(f, xs.a, ys.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_map3 = F4(function(f, xs, ys, zs)
-{
-	for (var arr = []; xs.b && ys.b && zs.b; xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
-	{
-		arr.push(A3(f, xs.a, ys.a, zs.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_map4 = F5(function(f, ws, xs, ys, zs)
-{
-	for (var arr = []; ws.b && xs.b && ys.b && zs.b; ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
-	{
-		arr.push(A4(f, ws.a, xs.a, ys.a, zs.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_map5 = F6(function(f, vs, ws, xs, ys, zs)
-{
-	for (var arr = []; vs.b && ws.b && xs.b && ys.b && zs.b; vs = vs.b, ws = ws.b, xs = xs.b, ys = ys.b, zs = zs.b) // WHILE_CONSES
-	{
-		arr.push(A5(f, vs.a, ws.a, xs.a, ys.a, zs.a));
-	}
-	return _List_fromArray(arr);
-});
-
-var _List_sortBy = F2(function(f, xs)
-{
-	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
-		return _Utils_cmp(f(a), f(b));
-	}));
-});
-
-var _List_sortWith = F2(function(f, xs)
-{
-	return _List_fromArray(_List_toArray(xs).sort(function(a, b) {
-		var ord = A2(f, a, b);
-		return ord === elm$core$Basics$EQ ? 0 : ord === elm$core$Basics$LT ? -1 : 1;
-	}));
-});
 
 
 
@@ -4404,8 +4404,7 @@ var _Bitwise_shiftRightZfBy = F2(function(offset, a)
 	return a >>> offset;
 });
 var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$EQ = {$: 'EQ'};
-var elm$core$Basics$LT = {$: 'LT'};
+var author$project$Input$init = {down: false, left: false, right: false, space: false, up: false};
 var elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var elm$core$Array$foldr = F3(
 	function (func, baseCase, _n0) {
@@ -4427,6 +4426,8 @@ var elm$core$Array$foldr = F3(
 			A3(elm$core$Elm$JsArray$foldr, func, baseCase, tail),
 			tree);
 	});
+var elm$core$Basics$EQ = {$: 'EQ'};
+var elm$core$Basics$LT = {$: 'LT'};
 var elm$core$List$cons = _List_cons;
 var elm$core$Array$toList = function (array) {
 	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
@@ -4484,16 +4485,15 @@ var elm$core$Set$toList = function (_n0) {
 	var dict = _n0.a;
 	return elm$core$Dict$keys(dict);
 };
-var author$project$Main$initModel = {
-	health: 10,
-	input: {down: 0, left: 0, right: 0, up: 0},
-	kirby: {
-		collision: false,
-		pos: _Utils_Tuple2(0, 0),
-		rad: 24,
-		vel: _Utils_Tuple2(0, 0)
-	},
-	obstacles: _List_Nil
+var author$project$Kirby$init = {
+	acc: _Utils_Tuple2(0, 0),
+	chargeTime: 0,
+	collision: false,
+	firing: false,
+	hp: 10,
+	pos: _Utils_Tuple2(0, 0),
+	rad: 24,
+	vel: _Utils_Tuple2(0, 0)
 };
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
@@ -4892,15 +4892,17 @@ var elm$json$Json$Decode$errorToStringHelp = F2(
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
-	return _Utils_Tuple2(author$project$Main$initModel, elm$core$Platform$Cmd$none);
+	return _Utils_Tuple2(
+		{keys: author$project$Input$init, kirby: author$project$Kirby$init, lasers: _List_Nil, obstacles: _List_Nil},
+		elm$core$Platform$Cmd$none);
 };
-var author$project$Main$Change = F2(
-	function (a, b) {
-		return {$: 'Change', a: a, b: b};
-	});
 var author$project$Main$Frame = function (a) {
 	return {$: 'Frame', a: a};
 };
+var author$project$Main$KeyChange = F2(
+	function (a, b) {
+		return {$: 'KeyChange', a: a, b: b};
+	});
 var author$project$Main$SpawnObstacle = {$: 'SpawnObstacle'};
 var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$map = _Json_map1;
@@ -4910,14 +4912,6 @@ var author$project$Main$keyDecoder = function (action) {
 		elm$json$Json$Decode$map,
 		action,
 		A2(elm$json$Json$Decode$field, 'key', elm$json$Json$Decode$string));
-};
-var author$project$Main$params = {
-	acc: 10000,
-	drag: 5000,
-	maxObstacleRadius: 30,
-	maxSpeed: 2000,
-	obstacleSpawnTime: 500,
-	window: {height: 1080, width: 1920}
 };
 var elm$browser$Browser$AnimationManager$Delta = function (a) {
 	return {$: 'Delta', a: a};
@@ -5977,25 +5971,53 @@ var elm$time$Time$every = F2(
 		return elm$time$Time$subscription(
 			A2(elm$time$Time$Every, interval, tagger));
 	});
-var author$project$Main$subscriptions = function (model) {
-	return (model.health > 0) ? elm$core$Platform$Sub$batch(
+var author$project$Main$subscriptions = function (_n0) {
+	var kirby = _n0.kirby;
+	return (kirby.hp > 0) ? elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
 				elm$browser$Browser$Events$onKeyUp(
 				author$project$Main$keyDecoder(
-					author$project$Main$Change(0))),
+					author$project$Main$KeyChange(false))),
 				elm$browser$Browser$Events$onKeyDown(
 				author$project$Main$keyDecoder(
-					author$project$Main$Change(1))),
+					author$project$Main$KeyChange(true))),
 				elm$browser$Browser$Events$onAnimationFrameDelta(author$project$Main$Frame),
 				A2(
 				elm$time$Time$every,
-				author$project$Main$params.obstacleSpawnTime,
+				100,
 				elm$core$Basics$always(author$project$Main$SpawnObstacle))
 			])) : elm$core$Platform$Sub$none;
 };
-var author$project$Main$AddObstacle = function (a) {
-	return {$: 'AddObstacle', a: a};
+var author$project$Input$set = F3(
+	function (status, key, input) {
+		switch (key) {
+			case 'w':
+				return _Utils_update(
+					input,
+					{up: status});
+			case 'a':
+				return _Utils_update(
+					input,
+					{left: status});
+			case 's':
+				return _Utils_update(
+					input,
+					{down: status});
+			case 'd':
+				return _Utils_update(
+					input,
+					{right: status});
+			case ' ':
+				return _Utils_update(
+					input,
+					{space: status});
+			default:
+				return input;
+		}
+	});
+var author$project$Input$toFloat = function (b) {
+	return b ? 1 : 0;
 };
 var elm$core$Basics$pow = _Basics_pow;
 var elm$core$Basics$sqrt = _Basics_sqrt;
@@ -6005,71 +6027,45 @@ var author$project$Vector$mag = function (_n0) {
 	return elm$core$Basics$sqrt(
 		A2(elm$core$Basics$pow, x, 2) + A2(elm$core$Basics$pow, y, 2));
 };
-var author$project$Vector$biOp = F3(
-	function (op, _n0, _n1) {
-		var x1 = _n0.a;
-		var y1 = _n0.b;
-		var x2 = _n1.a;
-		var y2 = _n1.b;
-		return _Utils_Tuple2(
-			A2(op, x1, x2),
-			A2(op, y1, y2));
-	});
-var author$project$Vector$sub = author$project$Vector$biOp(elm$core$Basics$sub);
-var author$project$Vector$dist = F2(
-	function (v1, v2) {
-		return author$project$Vector$mag(
-			A2(author$project$Vector$sub, v1, v2));
-	});
-var author$project$Main$collision = F2(
-	function (obj1, obj2) {
-		return _Utils_cmp(
-			obj1.rad + obj2.rad,
-			A2(author$project$Vector$dist, obj1.pos, obj2.pos)) > 0;
-	});
-var elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var author$project$Main$checkCollision = F2(
-	function (obs, kirby) {
-		return _Utils_update(
-			kirby,
-			{
-				collision: A2(
-					elm$core$List$any,
-					author$project$Main$collision(kirby),
-					obs)
-			});
-	});
 var author$project$Vector$scale = F2(
 	function (k, _n0) {
 		var x = _n0.a;
 		var y = _n0.b;
 		return _Utils_Tuple2(k * x, k * y);
 	});
+var author$project$Vector$norm = function (_n0) {
+	var x = _n0.a;
+	var y = _n0.b;
+	var m = author$project$Vector$mag(
+		_Utils_Tuple2(x, y));
+	return (m > 0) ? A2(
+		author$project$Vector$scale,
+		1 / m,
+		_Utils_Tuple2(x, y)) : _Utils_Tuple2(0, 0);
+};
+var author$project$Input$toDir = function (_n0) {
+	var up = _n0.up;
+	var down = _n0.down;
+	var left = _n0.left;
+	var right = _n0.right;
+	var vertical = author$project$Input$toFloat(up) - author$project$Input$toFloat(down);
+	var horizontal = author$project$Input$toFloat(right) - author$project$Input$toFloat(left);
+	return author$project$Vector$norm(
+		_Utils_Tuple2(horizontal, vertical));
+};
+var author$project$Kirby$speed = 10000;
+var author$project$Kirby$laserState = function (kirby) {
+	var firing = kirby.firing;
+	var chargeTime = kirby.chargeTime;
+	return firing ? _Utils_update(
+		kirby,
+		{chargeTime: 0, firing: false}) : kirby;
+};
 var elm$core$Basics$clamp = F3(
 	function (low, high, number) {
 		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
 	});
-var author$project$Main$drag = F4(
+var author$project$Object$drag = F4(
 	function (dt, d, mx, obj) {
 		var _n0 = obj;
 		var vel = _n0.vel;
@@ -6082,10 +6078,125 @@ var author$project$Main$drag = F4(
 				vel: A2(author$project$Vector$scale, k, vel)
 			});
 	});
-var author$project$Main$object = F3(
-	function (pos, vel, rad) {
-		return {pos: pos, rad: rad, vel: vel};
+var author$project$Vector$biOp = F3(
+	function (op, _n0, _n1) {
+		var x1 = _n0.a;
+		var y1 = _n0.b;
+		var x2 = _n1.a;
+		var y2 = _n1.b;
+		return _Utils_Tuple2(
+			A2(op, x1, x2),
+			A2(op, y1, y2));
 	});
+var author$project$Vector$add = author$project$Vector$biOp(elm$core$Basics$add);
+var author$project$Object$updatePosition = F2(
+	function (dt, obj) {
+		return _Utils_update(
+			obj,
+			{
+				pos: A2(
+					author$project$Vector$add,
+					obj.pos,
+					A2(author$project$Vector$scale, dt, obj.vel))
+			});
+	});
+var author$project$Object$updateVelocity = F2(
+	function (dt, obj) {
+		return _Utils_update(
+			obj,
+			{
+				vel: A2(
+					author$project$Vector$add,
+					obj.vel,
+					A2(author$project$Vector$scale, dt, obj.acc))
+			});
+	});
+var author$project$Object$tick = function (dt) {
+	return A2(
+		elm$core$Basics$composeL,
+		author$project$Object$updatePosition(dt),
+		author$project$Object$updateVelocity(dt));
+};
+var author$project$Kirby$tick = function (dt) {
+	return A2(
+		elm$core$Basics$composeL,
+		A2(
+			elm$core$Basics$composeL,
+			A3(author$project$Object$drag, dt, 5000, 2000),
+			author$project$Object$tick(dt)),
+		author$project$Kirby$laserState);
+};
+var author$project$Utils$window = {h: 1080, w: 1920};
+var elm$core$Basics$ge = _Utils_ge;
+var author$project$Object$onScreen = function (_n0) {
+	var pos = _n0.pos;
+	var rad = _n0.rad;
+	var _n1 = pos;
+	var x = _n1.a;
+	var y = _n1.b;
+	var _n2 = author$project$Utils$window;
+	var w = _n2.w;
+	var h = _n2.h;
+	var _n3 = _Utils_Tuple2(w + rad, h + rad);
+	var threshX = _n3.a;
+	var threshY = _n3.b;
+	return (_Utils_cmp(x, threshX) < 1) && ((x >= 0) && ((_Utils_cmp(y, threshY) < 1) && (y >= 0)));
+};
+var author$project$Laser$tick = F2(
+	function (dt, laser) {
+		var lsr = A2(author$project$Object$tick, dt, laser);
+		return author$project$Object$onScreen(lsr) ? elm$core$Maybe$Just(lsr) : elm$core$Maybe$Nothing;
+	});
+var author$project$Laser$tickAll = function (dt) {
+	return elm$core$List$filterMap(
+		author$project$Laser$tick(dt));
+};
+var author$project$Main$AddObstacle = function (a) {
+	return {$: 'AddObstacle', a: a};
+};
+var author$project$Laser$Medium = {$: 'Medium'};
+var author$project$Laser$Strong = {$: 'Strong'};
+var author$project$Laser$Weak = {$: 'Weak'};
+var author$project$Laser$fire = F3(
+	function (chargeTime, pos, vel) {
+		var _n0 = (chargeTime < 0.5) ? _Utils_Tuple2(author$project$Laser$Weak, 10) : ((chargeTime < 1.0) ? _Utils_Tuple2(author$project$Laser$Medium, 20) : _Utils_Tuple2(author$project$Laser$Strong, 30));
+		var damage = _n0.a;
+		var rad = _n0.b;
+		return {
+			acc: _Utils_Tuple2(0, 0),
+			damage: damage,
+			pos: pos,
+			rad: rad,
+			vel: A2(
+				author$project$Vector$add,
+				vel,
+				_Utils_Tuple2(5000, 0))
+		};
+	});
+var author$project$Main$fireLaser = function (_n0) {
+	var firing = _n0.firing;
+	var chargeTime = _n0.chargeTime;
+	var pos = _n0.pos;
+	var vel = _n0.vel;
+	return firing ? _List_fromArray(
+		[
+			A3(author$project$Laser$fire, chargeTime, pos, vel)
+		]) : _List_Nil;
+};
+var author$project$Vector$sub = author$project$Vector$biOp(elm$core$Basics$sub);
+var author$project$Vector$dist = F2(
+	function (v1, v2) {
+		return author$project$Vector$mag(
+			A2(author$project$Vector$sub, v1, v2));
+	});
+var author$project$Object$isColliding = F2(
+	function (obj1, obj2) {
+		return _Utils_cmp(
+			obj1.rad + obj2.rad,
+			A2(author$project$Vector$dist, obj1.pos, obj2.pos)) > 0;
+	});
+var author$project$Obstacle$maxRadius = 30;
+var author$project$Obstacle$minRadius = 5;
 var elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -6189,116 +6300,59 @@ var elm$random$Random$map3 = F4(
 					seed3);
 			});
 	});
-var author$project$Main$obstacleGenerator = function () {
-	var padding = author$project$Main$params.maxObstacleRadius;
-	var _n0 = author$project$Main$params.window;
-	var width = _n0.width;
-	var height = _n0.height;
-	var halfHeight = height / 2;
-	var spawnX = (width / 2) + padding;
+var author$project$Obstacle$generator = function () {
+	var spawnX = author$project$Utils$window.w + author$project$Obstacle$maxRadius;
 	return A4(
 		elm$random$Random$map3,
-		author$project$Main$object,
+		F3(
+			function (p, v, r) {
+				return {
+					acc: _Utils_Tuple2(0, 0),
+					pos: p,
+					rad: r,
+					vel: v
+				};
+			}),
 		A2(
 			author$project$Vector$random,
-			_Utils_Tuple2(spawnX, (-1) * halfHeight),
-			_Utils_Tuple2(spawnX, halfHeight)),
+			_Utils_Tuple2(spawnX, 0),
+			_Utils_Tuple2(spawnX, author$project$Utils$window.h)),
 		A2(
 			author$project$Vector$random,
 			_Utils_Tuple2(-1000, -50),
 			_Utils_Tuple2(-200, 50)),
-		A2(elm$random$Random$float, 5, author$project$Main$params.maxObstacleRadius));
+		A2(elm$random$Random$float, author$project$Obstacle$minRadius, author$project$Obstacle$maxRadius));
 }();
-var elm$core$Basics$ge = _Utils_ge;
-var author$project$Main$onScreen = function (_n0) {
-	var pos = _n0.pos;
-	var rad = _n0.rad;
-	var padding = author$project$Main$params.maxObstacleRadius;
-	var _n1 = pos;
-	var x = _n1.a;
-	var y = _n1.b;
-	var _n2 = author$project$Main$params.window;
-	var width = _n2.width;
-	var height = _n2.height;
-	var threshY = (height / 2) + padding;
-	var threshX = (width / 2) + padding;
-	return (_Utils_cmp(x, threshX) < 1) && ((_Utils_cmp(x, -threshX) > -1) && ((_Utils_cmp(y, threshY) < 1) && (_Utils_cmp(y, -threshY) > -1)));
-};
-var author$project$Vector$add = author$project$Vector$biOp(elm$core$Basics$add);
-var author$project$Main$position = F2(
-	function (dt, obj) {
-		return _Utils_update(
-			obj,
-			{
-				pos: A2(
-					author$project$Vector$add,
-					obj.pos,
-					A2(author$project$Vector$scale, dt, obj.vel))
-			});
+var author$project$Obstacle$tick = F2(
+	function (dt, obstacle) {
+		var obs = A2(author$project$Object$tick, dt, obstacle);
+		return author$project$Object$onScreen(obs) ? elm$core$Maybe$Just(obs) : elm$core$Maybe$Nothing;
 	});
-var author$project$Main$setInput = F3(
-	function (status, key, input) {
-		switch (key) {
-			case 'w':
-				return _Utils_update(
-					input,
-					{up: status});
-			case 'a':
-				return _Utils_update(
-					input,
-					{left: status});
-			case 's':
-				return _Utils_update(
-					input,
-					{down: status});
-			case 'd':
-				return _Utils_update(
-					input,
-					{right: status});
-			default:
-				return input;
-		}
-	});
-var author$project$Vector$norm = function (_n0) {
-	var x = _n0.a;
-	var y = _n0.b;
-	var m = author$project$Vector$mag(
-		_Utils_Tuple2(x, y));
-	return (m > 0) ? A2(
-		author$project$Vector$scale,
-		1 / m,
-		_Utils_Tuple2(x, y)) : _Utils_Tuple2(0, 0);
+var author$project$Obstacle$tickAll = function (dt) {
+	return elm$core$List$filterMap(
+		author$project$Obstacle$tick(dt));
 };
-var author$project$Main$sumInput = function (_n0) {
-	var up = _n0.up;
-	var down = _n0.down;
-	var left = _n0.left;
-	var right = _n0.right;
-	return author$project$Vector$norm(
-		_Utils_Tuple2(right - left, up - down));
-};
-var author$project$Main$velocity = F3(
-	function (dt, acc, obj) {
-		return _Utils_update(
-			obj,
-			{
-				vel: A2(
-					author$project$Vector$add,
-					obj.vel,
-					A2(author$project$Vector$scale, dt, acc))
-			});
-	});
 var elm$core$Basics$not = _Basics_not;
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
+var elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
 	});
 var elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
@@ -6380,525 +6434,87 @@ var elm$random$Random$generate = F2(
 	});
 var author$project$Main$update = F2(
 	function (msg, model) {
+		var keys = model.keys;
+		var kirby = model.kirby;
+		var obstacles = model.obstacles;
+		var lasers = model.lasers;
 		switch (msg.$) {
 			case 'Frame':
 				var ms = msg.a;
+				var newLasers = _Utils_ap(
+					lasers,
+					author$project$Main$fireLaser(kirby));
 				var dt = ms / 1000;
-				var obs = A2(
-					elm$core$List$map,
-					author$project$Main$position(dt),
-					A2(elm$core$List$filter, author$project$Main$onScreen, model.obstacles));
-				var acc = A2(
-					author$project$Vector$scale,
-					author$project$Main$params.acc,
-					author$project$Main$sumInput(model.input));
-				var kirby = A2(
-					author$project$Main$checkCollision,
-					model.obstacles,
-					A2(
-						author$project$Main$position,
-						dt,
-						A4(
-							author$project$Main$drag,
-							dt,
-							author$project$Main$params.drag,
-							author$project$Main$params.maxSpeed,
-							A3(author$project$Main$velocity, dt, acc, model.kirby))));
-				var health = ((!model.kirby.collision) && kirby.collision) ? (model.health - 1) : model.health;
+				var newKirby = _Utils_update(
+					kirby,
+					{
+						acc: A2(
+							author$project$Vector$scale,
+							author$project$Kirby$speed,
+							author$project$Input$toDir(keys)),
+						chargeTime: keys.space ? (kirby.chargeTime + dt) : 0,
+						collision: A2(
+							elm$core$List$any,
+							author$project$Object$isColliding(kirby),
+							obstacles)
+					});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{health: health, kirby: kirby, obstacles: obs}),
+						{
+							kirby: A2(author$project$Kirby$tick, dt, newKirby),
+							lasers: A2(author$project$Laser$tickAll, dt, newLasers),
+							obstacles: A2(author$project$Obstacle$tickAll, dt, obstacles)
+						}),
 					elm$core$Platform$Cmd$none);
 			case 'SpawnObstacle':
 				return _Utils_Tuple2(
 					model,
-					A2(elm$random$Random$generate, author$project$Main$AddObstacle, author$project$Main$obstacleGenerator));
+					A2(elm$random$Random$generate, author$project$Main$AddObstacle, author$project$Obstacle$generator));
 			case 'AddObstacle':
 				var obs = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							obstacles: A2(elm$core$List$cons, obs, model.obstacles)
+							obstacles: A2(elm$core$List$cons, obs, obstacles)
 						}),
 					elm$core$Platform$Cmd$none);
 			default:
 				var status = msg.a;
 				var key = msg.b;
+				var newKeys = A3(author$project$Input$set, status, key, keys);
+				var newKirby = _Utils_update(
+					kirby,
+					{firing: keys.space && (!newKeys.space)});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							input: A3(author$project$Main$setInput, status, key, model.input)
-						}),
+						{keys: newKeys, kirby: newKirby}),
 					elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Main$kirbyImage = function (_n0) {
-	var up = _n0.up;
-	var down = _n0.down;
-	var left = _n0.left;
-	var right = _n0.right;
-	var vert = up - down;
-	var horiz = right - left;
-	var dir = (vert === 1) ? 'up' : (_Utils_eq(vert, -1) ? 'down' : ((horiz === 1) ? 'right' : 'still'));
-	return 'assets/images/kirby/' + (dir + '.gif');
+var author$project$Kirby$laserImage = function (_n0) {
+	var firing = _n0.firing;
+	var chargeTime = _n0.chargeTime;
+	var name = (chargeTime < 0.5) ? 'weak' : ((chargeTime < 1.0) ? 'medium' : 'strong');
+	var action = firing ? 'fire' : 'charge';
+	return 'laser/' + (action + ('-' + name));
 };
-var avh4$elm_color$Color$RgbaSpace = F4(
-	function (a, b, c, d) {
-		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
-	});
-var avh4$elm_color$Color$black = A4(avh4$elm_color$Color$RgbaSpace, 0 / 255, 0 / 255, 0 / 255, 1.0);
-var avh4$elm_color$Color$red = A4(avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
-var timjs$elm_collage$Collage$Core$Circle = function (a) {
-	return {$: 'Circle', a: a};
-};
-var timjs$elm_collage$Collage$circle = timjs$elm_collage$Collage$Core$Circle;
-var timjs$elm_collage$Collage$Flat = {$: 'Flat'};
-var timjs$elm_collage$Collage$Sharp = {$: 'Sharp'};
-var timjs$elm_collage$Collage$thin = 2.0;
-var timjs$elm_collage$Collage$Core$Uniform = function (a) {
-	return {$: 'Uniform', a: a};
-};
-var timjs$elm_collage$Collage$uniform = timjs$elm_collage$Collage$Core$Uniform;
-var timjs$elm_collage$Collage$defaultLineStyle = {
-	cap: timjs$elm_collage$Collage$Flat,
-	dashPattern: _List_Nil,
-	dashPhase: 0,
-	fill: timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$black),
-	join: timjs$elm_collage$Collage$Sharp,
-	thickness: timjs$elm_collage$Collage$thin
-};
-var timjs$elm_collage$Collage$broken = F3(
-	function (dashes, thickness, fill) {
-		return _Utils_update(
-			timjs$elm_collage$Collage$defaultLineStyle,
-			{dashPattern: dashes, fill: fill, thickness: thickness});
-	});
-var timjs$elm_collage$Collage$solid = timjs$elm_collage$Collage$broken(_List_Nil);
-var timjs$elm_collage$Collage$Core$Transparent = {$: 'Transparent'};
-var timjs$elm_collage$Collage$transparent = timjs$elm_collage$Collage$Core$Transparent;
-var timjs$elm_collage$Collage$invisible = A2(timjs$elm_collage$Collage$solid, 0, timjs$elm_collage$Collage$transparent);
-var timjs$elm_collage$Collage$Core$Shape = F2(
-	function (a, b) {
-		return {$: 'Shape', a: a, b: b};
-	});
-var timjs$elm_collage$Collage$Core$collage = function (basic) {
-	return {
-		basic: basic,
-		handlers: _List_Nil,
-		name: elm$core$Maybe$Nothing,
-		opacity: 1,
-		rotation: 0,
-		scale: _Utils_Tuple2(1, 1),
-		shift: _Utils_Tuple2(0, 0)
-	};
-};
-var timjs$elm_collage$Collage$styled = function (style) {
-	return A2(
-		elm$core$Basics$composeL,
-		timjs$elm_collage$Collage$Core$collage,
-		timjs$elm_collage$Collage$Core$Shape(style));
-};
-var timjs$elm_collage$Collage$filled = function (fill) {
-	return timjs$elm_collage$Collage$styled(
-		_Utils_Tuple2(fill, timjs$elm_collage$Collage$invisible));
-};
-var timjs$elm_collage$Collage$Core$Group = function (a) {
-	return {$: 'Group', a: a};
-};
-var timjs$elm_collage$Collage$group = A2(elm$core$Basics$composeL, timjs$elm_collage$Collage$Core$collage, timjs$elm_collage$Collage$Core$Group);
-var timjs$elm_collage$Collage$Core$Image = F2(
-	function (a, b) {
-		return {$: 'Image', a: a, b: b};
-	});
-var timjs$elm_collage$Collage$image = function (dims) {
-	return A2(
-		elm$core$Basics$composeL,
-		timjs$elm_collage$Collage$Core$collage,
-		timjs$elm_collage$Collage$Core$Image(dims));
-};
-var timjs$elm_collage$Collage$Core$Rectangle = F3(
-	function (a, b, c) {
-		return {$: 'Rectangle', a: a, b: b, c: c};
-	});
-var timjs$elm_collage$Collage$roundedRectangle = timjs$elm_collage$Collage$Core$Rectangle;
-var timjs$elm_collage$Collage$rectangle = F2(
-	function (w, h) {
-		return A3(timjs$elm_collage$Collage$roundedRectangle, w, h, 0);
-	});
-var timjs$elm_collage$Collage$shift = F2(
-	function (_n0, collage) {
-		var dx = _n0.a;
-		var dy = _n0.b;
-		var _n1 = collage.shift;
-		var x = _n1.a;
-		var y = _n1.b;
-		return _Utils_update(
-			collage,
-			{
-				shift: _Utils_Tuple2(x + dx, y + dy)
-			});
-	});
-var timjs$elm_collage$Collage$Core$Subcollage = F2(
-	function (a, b) {
-		return {$: 'Subcollage', a: a, b: b};
-	});
-var timjs$elm_collage$Collage$Layout$impose = F2(
-	function (front, back) {
-		return timjs$elm_collage$Collage$Core$collage(
-			A2(timjs$elm_collage$Collage$Core$Subcollage, front, back));
-	});
-var author$project$Main$display = function (model) {
-	var rect = A2(
-		timjs$elm_collage$Collage$filled,
-		timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$black),
-		A2(timjs$elm_collage$Collage$rectangle, 1920, 1080));
-	var obs = A2(
-		elm$core$List$map,
-		function (_n0) {
-			var pos = _n0.pos;
-			var rad = _n0.rad;
-			return A2(
-				timjs$elm_collage$Collage$shift,
-				pos,
-				A2(
-					timjs$elm_collage$Collage$filled,
-					timjs$elm_collage$Collage$uniform(avh4$elm_color$Color$red),
-					timjs$elm_collage$Collage$circle(rad)));
-		},
-		model.obstacles);
-	var img = A2(
-		timjs$elm_collage$Collage$shift,
-		model.kirby.pos,
-		A2(
-			timjs$elm_collage$Collage$image,
-			_Utils_Tuple2(49, 42),
-			author$project$Main$kirbyImage(model.input)));
-	return A2(
-		timjs$elm_collage$Collage$Layout$impose,
-		img,
-		A2(
-			timjs$elm_collage$Collage$Layout$impose,
-			timjs$elm_collage$Collage$group(obs),
-			rect));
-};
-var elm$core$Debug$toString = _Debug_toString;
-var elm$html$Html$h1 = _VirtualDom_node('h1');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var timjs$elm_collage$Collage$opposite = function (_n0) {
-	var x = _n0.a;
-	var y = _n0.b;
-	return _Utils_Tuple2(-x, -y);
-};
-var timjs$elm_collage$Collage$Layout$align = F2(
-	function (anchor, col) {
-		return A2(
-			timjs$elm_collage$Collage$shift,
-			timjs$elm_collage$Collage$opposite(
-				anchor(col)),
-			col);
-	});
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$concat = function (lists) {
-	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
-};
-var elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(
-			A3(elm$core$List$foldl, elm$core$Basics$max, x, xs));
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var elm$core$Basics$min = F2(
-	function (x, y) {
-		return (_Utils_cmp(x, y) < 0) ? x : y;
-	});
-var elm$core$List$minimum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(
-			A3(elm$core$List$foldl, elm$core$Basics$min, x, xs));
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var elm$core$List$unzip = function (pairs) {
-	var step = F2(
-		function (_n0, _n1) {
-			var x = _n0.a;
-			var y = _n0.b;
-			var xs = _n1.a;
-			var ys = _n1.b;
-			return _Utils_Tuple2(
-				A2(elm$core$List$cons, x, xs),
-				A2(elm$core$List$cons, y, ys));
-		});
-	return A3(
-		elm$core$List$foldr,
-		step,
-		_Utils_Tuple2(_List_Nil, _List_Nil),
-		pairs);
-};
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var timjs$elm_collage$Collage$Core$Path = F2(
-	function (a, b) {
-		return {$: 'Path', a: a, b: b};
-	});
-var elm$core$Basics$cos = _Basics_cos;
-var elm$core$Basics$sin = _Basics_sin;
-var timjs$elm_collage$Collage$Core$apply = function (_n0) {
-	var shift = _n0.shift;
-	var scale = _n0.scale;
-	var rotation = _n0.rotation;
-	var rotated = function (_n5) {
-		var x = _n5.a;
-		var y = _n5.b;
-		var s = elm$core$Basics$sin(rotation);
-		var c = elm$core$Basics$cos(rotation);
-		return _Utils_Tuple2((c * x) - (s * y), (s * x) + (c * y));
-	};
-	var _n1 = scale;
-	var sx = _n1.a;
-	var sy = _n1.b;
-	var scaled = function (_n4) {
-		var x = _n4.a;
-		var y = _n4.b;
-		return _Utils_Tuple2(sx * x, sy * y);
-	};
-	var _n2 = shift;
-	var dx = _n2.a;
-	var dy = _n2.b;
-	var shifted = function (_n3) {
-		var x = _n3.a;
-		var y = _n3.b;
-		return _Utils_Tuple2(x + dx, y + dy);
-	};
-	return A2(
-		elm$core$Basics$composeL,
-		A2(elm$core$Basics$composeL, shifted, scaled),
-		rotated);
-};
-var timjs$elm_collage$Collage$Layout$handlePoints = function (thickness) {
-	var thicken = function (_n0) {
-		var x = _n0.a;
-		var y = _n0.b;
-		var t = thickness / 2;
-		return _Utils_Tuple2(
-			(x < 0) ? (x - t) : (x + t),
-			(y < 0) ? (y - t) : (y + t));
-	};
-	return elm$core$List$map(thicken);
-};
-var timjs$elm_collage$Collage$Layout$handleBox = F2(
-	function (thickness, _n0) {
-		var w = _n0.a;
-		var h = _n0.b;
-		var y = h / 2;
-		var x = w / 2;
-		return A2(
-			timjs$elm_collage$Collage$Layout$handlePoints,
-			thickness,
-			_List_fromArray(
-				[
-					_Utils_Tuple2(-x, -y),
-					_Utils_Tuple2(x, -y),
-					_Utils_Tuple2(x, y),
-					_Utils_Tuple2(-x, y)
-				]));
-	});
-var timjs$elm_collage$Collage$Layout$unpack = function (_n0) {
-	var toTop = _n0.toTop;
-	var toBottom = _n0.toBottom;
-	var toRight = _n0.toRight;
-	var toLeft = _n0.toLeft;
-	return _List_fromArray(
-		[
-			_Utils_Tuple2(-toLeft, -toBottom),
-			_Utils_Tuple2(toRight, -toBottom),
-			_Utils_Tuple2(toRight, toTop),
-			_Utils_Tuple2(-toLeft, toTop)
-		]);
-};
-var timjs$elm_collage$Collage$Layout$distances = function (col) {
-	var points = timjs$elm_collage$Collage$Layout$handleBasic(col.basic);
-	var _n8 = elm$core$List$unzip(
-		A2(
-			elm$core$List$map,
-			timjs$elm_collage$Collage$Core$apply(col),
-			points));
-	var xs = _n8.a;
-	var ys = _n8.b;
-	return {
-		toBottom: -A2(
-			elm$core$Maybe$withDefault,
-			0,
-			elm$core$List$minimum(ys)),
-		toLeft: -A2(
-			elm$core$Maybe$withDefault,
-			0,
-			elm$core$List$minimum(xs)),
-		toRight: A2(
-			elm$core$Maybe$withDefault,
-			0,
-			elm$core$List$maximum(xs)),
-		toTop: A2(
-			elm$core$Maybe$withDefault,
-			0,
-			elm$core$List$maximum(ys))
-	};
-};
-var timjs$elm_collage$Collage$Layout$handleBasic = function (basic) {
-	handleBasic:
-	while (true) {
-		switch (basic.$) {
-			case 'Shape':
-				switch (basic.b.$) {
-					case 'Circle':
-						var _n1 = basic.a;
-						var thickness = _n1.b.thickness;
-						var r = basic.b.a;
-						var d = 2 * r;
-						return A2(
-							timjs$elm_collage$Collage$Layout$handleBox,
-							thickness,
-							_Utils_Tuple2(d, d));
-					case 'Ellipse':
-						var _n2 = basic.a;
-						var thickness = _n2.b.thickness;
-						var _n3 = basic.b;
-						var rx = _n3.a;
-						var ry = _n3.b;
-						return A2(
-							timjs$elm_collage$Collage$Layout$handleBox,
-							thickness,
-							_Utils_Tuple2(2 * rx, 2 * ry));
-					case 'Rectangle':
-						var _n4 = basic.a;
-						var thickness = _n4.b.thickness;
-						var _n5 = basic.b;
-						var w = _n5.a;
-						var h = _n5.b;
-						return A2(
-							timjs$elm_collage$Collage$Layout$handleBox,
-							thickness,
-							_Utils_Tuple2(w, h));
-					case 'Polygon':
-						var _n6 = basic.a;
-						var thickness = _n6.b.thickness;
-						var ps = basic.b.a;
-						return A2(timjs$elm_collage$Collage$Layout$handlePoints, thickness, ps);
-					default:
-						var _n7 = basic.a;
-						var line = _n7.b;
-						var path = basic.b.a;
-						var $temp$basic = A2(timjs$elm_collage$Collage$Core$Path, line, path);
-						basic = $temp$basic;
-						continue handleBasic;
-				}
-			case 'Path':
-				var thickness = basic.a.thickness;
-				var cap = basic.a.cap;
-				var ps = basic.b.a;
-				return A2(
-					timjs$elm_collage$Collage$Layout$handlePoints,
-					_Utils_eq(cap, timjs$elm_collage$Collage$Flat) ? 0 : thickness,
-					ps);
-			case 'Text':
-				var dims = basic.a;
-				return A2(timjs$elm_collage$Collage$Layout$handleBox, 0, dims);
-			case 'Image':
-				var dims = basic.a;
-				return A2(timjs$elm_collage$Collage$Layout$handleBox, 0, dims);
-			case 'Html':
-				var dims = basic.a;
-				return A2(timjs$elm_collage$Collage$Layout$handleBox, 0, dims);
-			case 'Group':
-				var cols = basic.a;
-				return A2(
-					timjs$elm_collage$Collage$Layout$handlePoints,
-					0,
-					elm$core$List$concat(
-						A2(
-							elm$core$List$map,
-							A2(elm$core$Basics$composeR, timjs$elm_collage$Collage$Layout$distances, timjs$elm_collage$Collage$Layout$unpack),
-							cols)));
-			default:
-				var back = basic.b;
-				return A2(
-					timjs$elm_collage$Collage$Layout$handlePoints,
-					0,
-					timjs$elm_collage$Collage$Layout$unpack(
-						timjs$elm_collage$Collage$Layout$distances(back)));
-		}
-	}
-};
-var timjs$elm_collage$Collage$Layout$height = function (col) {
-	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
-	var toTop = _n0.toTop;
-	var toBottom = _n0.toBottom;
-	return toTop + toBottom;
-};
-var timjs$elm_collage$Collage$Layout$topLeft = function (col) {
-	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
-	var toLeft = _n0.toLeft;
-	var toTop = _n0.toTop;
-	return _Utils_Tuple2(-toLeft, toTop);
-};
-var timjs$elm_collage$Collage$Layout$width = function (col) {
-	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
-	var toLeft = _n0.toLeft;
-	var toRight = _n0.toRight;
-	return toLeft + toRight;
+var author$project$Kirby$moveImage = function (_n0) {
+	var acc = _n0.acc;
+	var _n1 = acc;
+	var ax = _n1.a;
+	var ay = _n1.b;
+	var name = (ay > 0) ? 'up' : ((ay < 0) ? 'down' : ((ax > 0) ? 'right' : 'still'));
+	return 'move/' + name;
 };
 var elm$core$String$fromFloat = _String_fromNumber;
-var elm$html$Html$div = _VirtualDom_node('div');
 var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
-var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var elm$svg$Svg$Attributes$version = _VirtualDom_attribute('version');
-var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var elm$svg$Svg$circle = elm$svg$Svg$trustedNode('circle');
-var elm$svg$Svg$ellipse = elm$svg$Svg$trustedNode('ellipse');
-var elm$svg$Svg$foreignObject = elm$svg$Svg$trustedNode('foreignObject');
-var elm$svg$Svg$g = elm$svg$Svg$trustedNode('g');
 var elm$svg$Svg$image = elm$svg$Svg$trustedNode('image');
-var elm$svg$Svg$polygon = elm$svg$Svg$trustedNode('polygon');
-var elm$svg$Svg$polyline = elm$svg$Svg$trustedNode('polyline');
-var elm$svg$Svg$rect = elm$svg$Svg$trustedNode('rect');
-var elm$svg$Svg$text = elm$virtual_dom$VirtualDom$text;
-var elm$svg$Svg$text_ = elm$svg$Svg$trustedNode('text');
-var elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
-var elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
-var elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var elm$svg$Svg$Attributes$rx = _VirtualDom_attribute('rx');
-var elm$svg$Svg$Attributes$ry = _VirtualDom_attribute('ry');
+var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var elm$svg$Svg$Attributes$xlinkHref = function (value) {
 	return A3(
 		_VirtualDom_attributeNS,
@@ -6906,598 +6522,155 @@ var elm$svg$Svg$Attributes$xlinkHref = function (value) {
 		'xlink:href',
 		_VirtualDom_noJavaScriptUri(value));
 };
-var elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
-var elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var elm$svg$Svg$Attributes$fillOpacity = _VirtualDom_attribute('fill-opacity');
-var elm$svg$Svg$Attributes$fontFamily = _VirtualDom_attribute('font-family');
-var elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
-var elm$svg$Svg$Attributes$fontStyle = _VirtualDom_attribute('font-style');
-var elm$svg$Svg$Attributes$fontVariant = _VirtualDom_attribute('font-variant');
-var elm$svg$Svg$Attributes$fontWeight = _VirtualDom_attribute('font-weight');
-var elm$svg$Svg$Attributes$opacity = _VirtualDom_attribute('opacity');
-var elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var elm$svg$Svg$Attributes$strokeDasharray = _VirtualDom_attribute('stroke-dasharray');
-var elm$svg$Svg$Attributes$strokeDashoffset = _VirtualDom_attribute('stroke-dashoffset');
-var elm$svg$Svg$Attributes$strokeLinecap = _VirtualDom_attribute('stroke-linecap');
-var elm$svg$Svg$Attributes$strokeLinejoin = _VirtualDom_attribute('stroke-linejoin');
-var elm$svg$Svg$Attributes$strokeOpacity = _VirtualDom_attribute('stroke-opacity');
-var elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
-var elm$svg$Svg$Attributes$textDecoration = _VirtualDom_attribute('text-decoration');
-var elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
-var timjs$elm_collage$Collage$Render$decodeCap = function (cap) {
-	switch (cap.$) {
-		case 'Round':
-			return 'round';
-		case 'Padded':
-			return 'square';
-		default:
-			return 'butt';
-	}
-};
-var timjs$elm_collage$Collage$Render$decodeDashing = function (ds) {
-	var decodeOnOff = function (_n0) {
-		var x = _n0.a;
-		var y = _n0.b;
+var elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var author$project$Object$view = F3(
+	function (_n0, img, _n1) {
+		var pos = _n0.pos;
+		var w = _n1.a;
+		var h = _n1.b;
+		var _n2 = pos;
+		var px = _n2.a;
+		var py = _n2.b;
+		var rx = elm$core$String$fromFloat(px - (w / 2));
+		var ry = elm$core$String$fromFloat(1080 - (py - (h / 2)));
 		return A2(
-			elm$core$String$join,
-			',',
+			elm$svg$Svg$image,
 			_List_fromArray(
 				[
-					elm$core$String$fromInt(x),
-					elm$core$String$fromInt(y)
-				]));
-	};
-	return A2(
-		elm$core$String$join,
-		' ',
-		A2(elm$core$List$map, decodeOnOff, ds));
-};
-var avh4$elm_color$Color$rgb = F3(
-	function (r, g, b) {
-		return A4(avh4$elm_color$Color$RgbaSpace, r, g, b, 1.0);
+					elm$svg$Svg$Attributes$x(rx),
+					elm$svg$Svg$Attributes$y(ry),
+					elm$svg$Svg$Attributes$width(
+					elm$core$String$fromFloat(w)),
+					elm$svg$Svg$Attributes$height(
+					elm$core$String$fromFloat(h)),
+					elm$svg$Svg$Attributes$xlinkHref(img)
+				]),
+			_List_Nil);
 	});
-var elm$core$Basics$round = _Basics_round;
-var elm$core$String$concat = function (strings) {
-	return A2(elm$core$String$join, '', strings);
+var author$project$Kirby$view = function (kirby) {
+	var chargeTime = kirby.chargeTime;
+	var path = (!chargeTime) ? author$project$Kirby$moveImage(kirby) : author$project$Kirby$laserImage(kirby);
+	var img = './assets/images/kirby/' + (path + '.gif');
+	return A3(
+		author$project$Object$view,
+		kirby,
+		img,
+		_Utils_Tuple2(50, 50));
 };
-var avh4$elm_color$Color$toCssString = function (_n0) {
-	var r = _n0.a;
-	var g = _n0.b;
-	var b = _n0.c;
-	var a = _n0.d;
-	var roundTo = function (x) {
-		return elm$core$Basics$round(x * 1000) / 1000;
-	};
-	var pct = function (x) {
-		return elm$core$Basics$round(x * 10000) / 100;
-	};
-	return elm$core$String$concat(
+var author$project$Laser$laserImage = function (_n0) {
+	var damage = _n0.damage;
+	switch (damage.$) {
+		case 'Weak':
+			return 'weak';
+		case 'Medium':
+			return 'medium';
+		default:
+			return 'strong';
+	}
+};
+var author$project$Laser$view = function (laser) {
+	var img = './assets/images/kirby/laser/' + (author$project$Laser$laserImage(laser) + '-beam.png');
+	return A3(
+		author$project$Object$view,
+		laser,
+		img,
+		_Utils_Tuple2(50, 50));
+};
+var elm$svg$Svg$g = elm$svg$Svg$trustedNode('g');
+var author$project$Laser$viewAll = function (lasers) {
+	return A2(
+		elm$svg$Svg$g,
+		_List_Nil,
+		A2(elm$core$List$map, author$project$Laser$view, lasers));
+};
+var elm$svg$Svg$rect = elm$svg$Svg$trustedNode('rect');
+var elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var author$project$Main$backgroundView = A2(
+	elm$svg$Svg$rect,
+	_List_fromArray(
+		[
+			elm$svg$Svg$Attributes$x('0'),
+			elm$svg$Svg$Attributes$y('0'),
+			elm$svg$Svg$Attributes$width('1920'),
+			elm$svg$Svg$Attributes$height('1080'),
+			elm$svg$Svg$Attributes$fill('#000000')
+		]),
+	_List_Nil);
+var elm$svg$Svg$circle = elm$svg$Svg$trustedNode('circle');
+var elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
+var elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
+var elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var author$project$Obstacle$view = function (_n0) {
+	var pos = _n0.pos;
+	var rad = _n0.rad;
+	var _n1 = pos;
+	var px = _n1.a;
+	var py = _n1.b;
+	return A2(
+		elm$svg$Svg$circle,
 		_List_fromArray(
 			[
-				'rgba(',
-				elm$core$String$fromFloat(
-				pct(r)),
-				'%,',
-				elm$core$String$fromFloat(
-				pct(g)),
-				'%,',
-				elm$core$String$fromFloat(
-				pct(b)),
-				'%,',
-				elm$core$String$fromFloat(
-				roundTo(a)),
-				')'
+				elm$svg$Svg$Attributes$cx(
+				elm$core$String$fromFloat(px)),
+				elm$svg$Svg$Attributes$cy(
+				elm$core$String$fromFloat(py)),
+				elm$svg$Svg$Attributes$r(
+				elm$core$String$fromFloat(rad)),
+				elm$svg$Svg$Attributes$fill('red')
+			]),
+		_List_Nil);
+};
+var author$project$Obstacle$viewAll = function (obstacles) {
+	return A2(
+		elm$svg$Svg$g,
+		_List_Nil,
+		A2(elm$core$List$map, author$project$Obstacle$view, obstacles));
+};
+var elm$core$Debug$toString = _Debug_toString;
+var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$svg$Svg$text = elm$virtual_dom$VirtualDom$text;
+var elm$svg$Svg$text_ = elm$svg$Svg$trustedNode('text');
+var elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var author$project$Main$gameView = function (_n0) {
+	var kirby = _n0.kirby;
+	var obstacles = _n0.obstacles;
+	var lasers = _n0.lasers;
+	return A2(
+		elm$svg$Svg$svg,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$viewBox('0 0 1920 1080'),
+				elm$svg$Svg$Attributes$width('1920')
+			]),
+		_List_fromArray(
+			[
+				author$project$Main$backgroundView,
+				A2(
+				elm$svg$Svg$text_,
+				_List_fromArray(
+					[
+						elm$svg$Svg$Attributes$fill('#ffffff'),
+						elm$svg$Svg$Attributes$x('50%'),
+						elm$svg$Svg$Attributes$y('50%')
+					]),
+				_List_fromArray(
+					[
+						elm$svg$Svg$text(
+						elm$core$Debug$toString(kirby))
+					])),
+				author$project$Kirby$view(kirby),
+				author$project$Obstacle$viewAll(obstacles),
+				author$project$Laser$viewAll(lasers)
 			]));
 };
-var avh4$elm_color$Color$toRgba = function (_n0) {
-	var r = _n0.a;
-	var g = _n0.b;
-	var b = _n0.c;
-	var a = _n0.d;
-	return {alpha: a, blue: b, green: g, red: r};
-};
-var timjs$elm_collage$Collage$Render$decodeColor = function (c) {
-	var _n0 = avh4$elm_color$Color$toRgba(c);
-	var red = _n0.red;
-	var green = _n0.green;
-	var blue = _n0.blue;
-	return avh4$elm_color$Color$toCssString(
-		A3(avh4$elm_color$Color$rgb, red, green, blue));
-};
-var timjs$elm_collage$Collage$Render$decodeFill = function (fs) {
-	if (fs.$ === 'Uniform') {
-		var c = fs.a;
-		return timjs$elm_collage$Collage$Render$decodeColor(c);
-	} else {
-		return 'none';
-	}
-};
-var timjs$elm_collage$Collage$Render$decodeOpacity = function (c) {
-	var _n0 = avh4$elm_color$Color$toRgba(c);
-	var alpha = _n0.alpha;
-	return elm$core$String$fromFloat(alpha);
-};
-var timjs$elm_collage$Collage$Render$decodeFillOpacity = function (fs) {
-	if (fs.$ === 'Uniform') {
-		var c = fs.a;
-		return timjs$elm_collage$Collage$Render$decodeOpacity(c);
-	} else {
-		return '0';
-	}
-};
-var timjs$elm_collage$Collage$Render$decodeJoin = function (join) {
-	switch (join.$) {
-		case 'Smooth':
-			return 'round';
-		case 'Sharp':
-			return 'miter';
-		default:
-			return 'bevel';
-	}
-};
-var elm$core$Basics$pi = _Basics_pi;
-var elm$core$Tuple$second = function (_n0) {
-	var y = _n0.b;
-	return y;
-};
-var timjs$elm_collage$Collage$Render$decodeTransform = function (collage) {
-	var sy = elm$core$String$fromFloat(collage.scale.b);
-	var sx = elm$core$String$fromFloat(collage.scale.a);
-	var r = elm$core$String$fromFloat((((-collage.rotation) / 2) / elm$core$Basics$pi) * 360);
-	var dy = elm$core$String$fromFloat(-collage.shift.b);
-	var dx = elm$core$String$fromFloat(collage.shift.a);
-	return elm$core$String$concat(
-		_List_fromArray(
-			['translate(', dx, ',', dy, ') scale(', sx, ',', sy, ') rotate(', r, ')']));
-};
-var timjs$elm_collage$Collage$Render$attrs = function (collage) {
-	var _n0 = collage.basic;
-	switch (_n0.$) {
-		case 'Path':
-			var line = _n0.a;
-			return _List_fromArray(
-				[
-					elm$svg$Svg$Attributes$stroke(
-					timjs$elm_collage$Collage$Render$decodeFill(line.fill)),
-					elm$svg$Svg$Attributes$strokeOpacity(
-					timjs$elm_collage$Collage$Render$decodeFillOpacity(line.fill)),
-					elm$svg$Svg$Attributes$strokeWidth(
-					elm$core$String$fromFloat(line.thickness)),
-					elm$svg$Svg$Attributes$strokeLinecap(
-					timjs$elm_collage$Collage$Render$decodeCap(line.cap)),
-					elm$svg$Svg$Attributes$strokeLinejoin(
-					timjs$elm_collage$Collage$Render$decodeJoin(line.join)),
-					elm$svg$Svg$Attributes$fill('none'),
-					elm$svg$Svg$Attributes$opacity(
-					elm$core$String$fromFloat(collage.opacity)),
-					elm$svg$Svg$Attributes$transform(
-					timjs$elm_collage$Collage$Render$decodeTransform(collage)),
-					elm$svg$Svg$Attributes$strokeDashoffset(
-					elm$core$String$fromInt(line.dashPhase)),
-					elm$svg$Svg$Attributes$strokeDasharray(
-					timjs$elm_collage$Collage$Render$decodeDashing(line.dashPattern))
-				]);
-		case 'Shape':
-			var _n1 = _n0.a;
-			var fill = _n1.a;
-			var line = _n1.b;
-			return _List_fromArray(
-				[
-					elm$svg$Svg$Attributes$fill(
-					timjs$elm_collage$Collage$Render$decodeFill(fill)),
-					elm$svg$Svg$Attributes$fillOpacity(
-					timjs$elm_collage$Collage$Render$decodeFillOpacity(fill)),
-					elm$svg$Svg$Attributes$stroke(
-					timjs$elm_collage$Collage$Render$decodeFill(line.fill)),
-					elm$svg$Svg$Attributes$strokeOpacity(
-					timjs$elm_collage$Collage$Render$decodeFillOpacity(line.fill)),
-					elm$svg$Svg$Attributes$strokeWidth(
-					elm$core$String$fromFloat(line.thickness)),
-					elm$svg$Svg$Attributes$strokeLinecap(
-					timjs$elm_collage$Collage$Render$decodeCap(line.cap)),
-					elm$svg$Svg$Attributes$strokeLinejoin(
-					timjs$elm_collage$Collage$Render$decodeJoin(line.join)),
-					elm$svg$Svg$Attributes$opacity(
-					elm$core$String$fromFloat(collage.opacity)),
-					elm$svg$Svg$Attributes$transform(
-					timjs$elm_collage$Collage$Render$decodeTransform(collage)),
-					elm$svg$Svg$Attributes$strokeDashoffset(
-					elm$core$String$fromInt(line.dashPhase)),
-					elm$svg$Svg$Attributes$strokeDasharray(
-					timjs$elm_collage$Collage$Render$decodeDashing(line.dashPattern))
-				]);
-		case 'Text':
-			var _n2 = _n0.b;
-			var style = _n2.a;
-			var str = _n2.b;
-			return _List_fromArray(
-				[
-					elm$svg$Svg$Attributes$fill(
-					timjs$elm_collage$Collage$Render$decodeFill(
-						timjs$elm_collage$Collage$Core$Uniform(style.color))),
-					elm$svg$Svg$Attributes$fontFamily(
-					function () {
-						var _n3 = style.typeface;
-						switch (_n3.$) {
-							case 'Serif':
-								return 'serif';
-							case 'Sansserif':
-								return 'sans-serif';
-							case 'Monospace':
-								return 'monospace';
-							default:
-								var name = _n3.a;
-								return name;
-						}
-					}()),
-					elm$svg$Svg$Attributes$fontSize(
-					elm$core$String$fromInt(style.size)),
-					elm$svg$Svg$Attributes$fontWeight(
-					function () {
-						var _n4 = style.weight;
-						switch (_n4.$) {
-							case 'Thin':
-								return '200';
-							case 'Light':
-								return '300';
-							case 'Regular':
-								return 'normal';
-							case 'Medium':
-								return '500';
-							case 'SemiBold':
-								return '600';
-							case 'Bold':
-								return 'bold';
-							default:
-								return '800';
-						}
-					}()),
-					elm$svg$Svg$Attributes$fontStyle(
-					function () {
-						var _n5 = style.shape;
-						switch (_n5.$) {
-							case 'Upright':
-								return 'normal';
-							case 'SmallCaps':
-								return 'normal';
-							case 'Slanted':
-								return 'oblique';
-							default:
-								return 'italic';
-						}
-					}()),
-					elm$svg$Svg$Attributes$fontVariant(
-					function () {
-						var _n6 = style.shape;
-						if (_n6.$ === 'SmallCaps') {
-							return 'small-caps';
-						} else {
-							return 'normal';
-						}
-					}()),
-					elm$svg$Svg$Attributes$textDecoration(
-					function () {
-						var _n7 = style.line;
-						switch (_n7.$) {
-							case 'None':
-								return 'none';
-							case 'Under':
-								return 'underline';
-							case 'Over':
-								return 'overline';
-							default:
-								return 'line-through';
-						}
-					}()),
-					elm$svg$Svg$Attributes$textAnchor('middle'),
-					elm$svg$Svg$Attributes$dominantBaseline('middle'),
-					elm$svg$Svg$Attributes$transform(
-					timjs$elm_collage$Collage$Render$decodeTransform(collage))
-				]);
-		default:
-			return _List_fromArray(
-				[
-					elm$svg$Svg$Attributes$transform(
-					timjs$elm_collage$Collage$Render$decodeTransform(collage))
-				]);
-	}
-};
-var elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var timjs$elm_collage$Collage$Render$box = F2(
-	function (w, h) {
-		return _List_fromArray(
-			[
-				elm$svg$Svg$Attributes$width(
-				elm$core$String$fromFloat(w)),
-				elm$svg$Svg$Attributes$height(
-				elm$core$String$fromFloat(h)),
-				elm$svg$Svg$Attributes$x(
-				elm$core$String$fromFloat((-w) / 2)),
-				elm$svg$Svg$Attributes$y(
-				elm$core$String$fromFloat((-h) / 2))
-			]);
-	});
-var timjs$elm_collage$Collage$Render$decodePoints = function (ps) {
-	return A2(
-		elm$core$String$join,
-		' ',
-		A2(
-			elm$core$List$map,
-			function (_n0) {
-				var x = _n0.a;
-				var y = _n0.b;
-				return A2(
-					elm$core$String$join,
-					',',
-					_List_fromArray(
-						[
-							elm$core$String$fromFloat(x),
-							elm$core$String$fromFloat(-y)
-						]));
-			},
-			ps));
-};
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var elm$svg$Svg$Events$on = elm$html$Html$Events$on;
-var elm_community$basics_extra$Basics$Extra$uncurry = F2(
-	function (f, _n0) {
-		var a = _n0.a;
-		var b = _n0.b;
-		return A2(f, a, b);
-	});
-var timjs$elm_collage$Collage$Render$events = function (handlers) {
-	return A2(
-		elm$core$List$map,
-		elm_community$basics_extra$Basics$Extra$uncurry(elm$svg$Svg$Events$on),
-		handlers);
-};
-var timjs$elm_collage$Collage$Render$render = function (collage) {
-	render:
-	while (true) {
-		var name = A2(elm$core$Maybe$withDefault, '_unnamed_', collage.name);
-		var _n0 = collage.basic;
-		switch (_n0.$) {
-			case 'Path':
-				var style = _n0.a;
-				var path = _n0.b;
-				var ps = path.a;
-				return A2(
-					elm$svg$Svg$polyline,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$id(name),
-								elm$svg$Svg$Attributes$points(
-								timjs$elm_collage$Collage$Render$decodePoints(ps))
-							]),
-						_Utils_ap(
-							timjs$elm_collage$Collage$Render$attrs(collage),
-							timjs$elm_collage$Collage$Render$events(collage.handlers))),
-					_List_Nil);
-			case 'Shape':
-				var _n2 = _n0.a;
-				var fill = _n2.a;
-				var line = _n2.b;
-				var shape = _n0.b;
-				switch (shape.$) {
-					case 'Polygon':
-						var ps = shape.a;
-						return A2(
-							elm$svg$Svg$polygon,
-							_Utils_ap(
-								_List_fromArray(
-									[
-										elm$svg$Svg$Attributes$id(name),
-										elm$svg$Svg$Attributes$points(
-										timjs$elm_collage$Collage$Render$decodePoints(ps))
-									]),
-								_Utils_ap(
-									timjs$elm_collage$Collage$Render$attrs(collage),
-									timjs$elm_collage$Collage$Render$events(collage.handlers))),
-							_List_Nil);
-					case 'Circle':
-						var r = shape.a;
-						return A2(
-							elm$svg$Svg$circle,
-							_Utils_ap(
-								_List_fromArray(
-									[
-										elm$svg$Svg$Attributes$id(name),
-										elm$svg$Svg$Attributes$r(
-										elm$core$String$fromFloat(r))
-									]),
-								_Utils_ap(
-									timjs$elm_collage$Collage$Render$attrs(collage),
-									timjs$elm_collage$Collage$Render$events(collage.handlers))),
-							_List_Nil);
-					case 'Ellipse':
-						var rx = shape.a;
-						var ry = shape.b;
-						return A2(
-							elm$svg$Svg$ellipse,
-							_Utils_ap(
-								_List_fromArray(
-									[
-										elm$svg$Svg$Attributes$id(name),
-										elm$svg$Svg$Attributes$rx(
-										elm$core$String$fromFloat(rx)),
-										elm$svg$Svg$Attributes$ry(
-										elm$core$String$fromFloat(ry))
-									]),
-								_Utils_ap(
-									timjs$elm_collage$Collage$Render$attrs(collage),
-									timjs$elm_collage$Collage$Render$events(collage.handlers))),
-							_List_Nil);
-					case 'Rectangle':
-						var w = shape.a;
-						var h = shape.b;
-						var r = shape.c;
-						return A2(
-							elm$svg$Svg$rect,
-							_Utils_ap(
-								_List_fromArray(
-									[
-										elm$svg$Svg$Attributes$id(name),
-										elm$svg$Svg$Attributes$rx(
-										elm$core$String$fromFloat(r)),
-										elm$svg$Svg$Attributes$ry(
-										elm$core$String$fromFloat(r))
-									]),
-								_Utils_ap(
-									A2(timjs$elm_collage$Collage$Render$box, w, h),
-									_Utils_ap(
-										timjs$elm_collage$Collage$Render$attrs(collage),
-										timjs$elm_collage$Collage$Render$events(collage.handlers)))),
-							_List_Nil);
-					default:
-						var path = shape.a;
-						var $temp$collage = _Utils_update(
-							collage,
-							{
-								basic: A2(timjs$elm_collage$Collage$Core$Path, line, path)
-							});
-						collage = $temp$collage;
-						continue render;
-				}
-			case 'Text':
-				var _n4 = _n0.b;
-				var style = _n4.a;
-				var str = _n4.b;
-				return A2(
-					elm$svg$Svg$text_,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$id(name)
-							]),
-						_Utils_ap(
-							timjs$elm_collage$Collage$Render$attrs(collage),
-							timjs$elm_collage$Collage$Render$events(collage.handlers))),
-					_List_fromArray(
-						[
-							elm$svg$Svg$text(str)
-						]));
-			case 'Image':
-				var _n5 = _n0.a;
-				var w = _n5.a;
-				var h = _n5.b;
-				var url = _n0.b;
-				return A2(
-					elm$svg$Svg$image,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$id(name),
-								elm$svg$Svg$Attributes$xlinkHref(url)
-							]),
-						_Utils_ap(
-							A2(timjs$elm_collage$Collage$Render$box, w, h),
-							_Utils_ap(
-								timjs$elm_collage$Collage$Render$attrs(collage),
-								timjs$elm_collage$Collage$Render$events(collage.handlers)))),
-					_List_Nil);
-			case 'Html':
-				var _n6 = _n0.a;
-				var w = _n6.a;
-				var h = _n6.b;
-				var html = _n0.b;
-				return A2(
-					elm$svg$Svg$foreignObject,
-					_Utils_ap(
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$id(name)
-							]),
-						_Utils_ap(
-							A2(timjs$elm_collage$Collage$Render$box, w, h),
-							_Utils_ap(
-								timjs$elm_collage$Collage$Render$attrs(collage),
-								timjs$elm_collage$Collage$Render$events(collage.handlers)))),
-					_List_fromArray(
-						[html]));
-			case 'Group':
-				var collages = _n0.a;
-				return A2(
-					elm$svg$Svg$g,
-					A2(
-						elm$core$List$cons,
-						elm$svg$Svg$Attributes$id(name),
-						_Utils_ap(
-							timjs$elm_collage$Collage$Render$attrs(collage),
-							timjs$elm_collage$Collage$Render$events(collage.handlers))),
-					A3(
-						elm$core$List$foldl,
-						F2(
-							function (col, res) {
-								return A2(
-									elm$core$List$cons,
-									timjs$elm_collage$Collage$Render$render(col),
-									res);
-							}),
-						_List_Nil,
-						collages));
-			default:
-				var fore = _n0.a;
-				var back = _n0.b;
-				var $temp$collage = _Utils_update(
-					collage,
-					{
-						basic: timjs$elm_collage$Collage$Core$Group(
-							_List_fromArray(
-								[fore, back]))
-					});
-				collage = $temp$collage;
-				continue render;
-		}
-	}
-};
-var timjs$elm_collage$Collage$Render$svgAbsolute = F2(
-	function (_n0, collage) {
-		var width = _n0.a;
-		var height = _n0.b;
-		var w = elm$core$String$fromFloat(width);
-		var h = elm$core$String$fromFloat(height);
-		return A2(
-			elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					elm$svg$Svg$svg,
-					_List_fromArray(
-						[
-							elm$svg$Svg$Attributes$width(w),
-							elm$svg$Svg$Attributes$height(h),
-							elm$svg$Svg$Attributes$version('1.1')
-						]),
-					_List_fromArray(
-						[
-							timjs$elm_collage$Collage$Render$render(collage)
-						]))
-				]));
-	});
-var timjs$elm_collage$Collage$Render$svg = function (collage) {
-	return A2(
-		timjs$elm_collage$Collage$Render$svgAbsolute,
-		_Utils_Tuple2(
-			timjs$elm_collage$Collage$Layout$width(collage),
-			timjs$elm_collage$Collage$Layout$height(collage)),
-		A2(timjs$elm_collage$Collage$Layout$align, timjs$elm_collage$Collage$Layout$topLeft, collage));
-};
-var author$project$Main$view = function (model) {
-	var over = _List_fromArray(
+var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$h1 = _VirtualDom_node('h1');
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var author$project$Main$overView = A2(
+	elm$html$Html$div,
+	_List_Nil,
+	_List_fromArray(
 		[
 			A2(
 			elm$html$Html$h1,
@@ -7505,23 +6678,16 @@ var author$project$Main$view = function (model) {
 			_List_fromArray(
 				[
 					elm$html$Html$text('Game Over')
-				]))
-		]);
-	var active = _List_fromArray(
-		[
-			timjs$elm_collage$Collage$Render$svg(
-			author$project$Main$display(model)),
-			A2(
-			elm$html$Html$h1,
-			_List_Nil,
-			_List_fromArray(
-				[
-					elm$html$Html$text(
-					'Health: ' + elm$core$Debug$toString(model.health))
-				]))
-		]);
+				])),
+			author$project$Main$backgroundView
+		]));
+var author$project$Main$view = function (model) {
+	var kirby = model.kirby;
 	return {
-		body: (model.health > 0) ? active : over,
+		body: _List_fromArray(
+			[
+				(kirby.hp > 0) ? author$project$Main$gameView(model) : author$project$Main$overView
+			]),
 		title: 'Kirby Racer'
 	};
 };
